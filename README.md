@@ -1,12 +1,34 @@
-# AgentMemory
+# 🧠 AgentMemory
 
 > **On-chain persistent memory protocol for AI agents on Solana.**
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Solana](https://img.shields.io/badge/Solana-devnet-purple)](https://solana.com)
-[![Anchor](https://img.shields.io/badge/Anchor-0.30.1-green)](https://anchor-lang.com)
-[![Colosseum Agent Hackathon 2026](https://img.shields.io/badge/Colosseum-Agent%20Hackathon%202026-orange)](https://www.colosseum.org/)
-[![Demo](https://img.shields.io/badge/🚀-Try%20Demo-blue)](https://agent-memory-demo.vercel.app)
+<p align="center">
+  <a href="https://opensource.org/licenses/MIT">
+    <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT" />
+  </a>
+  <a href="https://solana.com">
+    <img src="https://img.shields.io/badge/Solana-devnet-purple" alt="Solana" />
+  </a>
+  <a href="https://anchor-lang.com">
+    <img src="https://img.shields.io/badge/Anchor-0.30.1-green" alt="Anchor" />
+  </a>
+  <a href="https://www.colosseum.org/">
+    <img src="https://img.shields.io/badge/Colosseum-Agent%20Hackathon%202026-orange" alt="Colosseum" />
+  </a>
+  <a href="https://agent-memory-demo.vercel.app">
+    <img src="https://img.shields.io/badge/🚀-Try%20Demo-blue" alt="Demo" />
+  </a>
+</p>
+
+<p align="center">
+  <a href="#-quick-start">Quick Start</a> •
+  <a href="#-features">Features</a> •
+  <a href="#-architecture">Architecture</a> •
+  <a href="#-documentation">Documentation</a> •
+  <a href="#-contributing">Contributing</a>
+</p>
+
+---
 
 ## 🎯 Vision
 
@@ -18,99 +40,6 @@ Every day, millions of AI agents wake up with no memory of yesterday's conversat
 - 🔐 **Privacy-First** — Client-side encryption means even we can't read your data
 - 🤝 **Agent Collaboration** — Share memory securely with other agents (paid or free)
 - 📈 **Reputation System** — Build trust through verifiable task completion
-
-## 🏗️ Architecture
-
-### 🗺️ System Overview
-
-```
-┌──────────────────────────────────────────────────────────────┐
-│                        AI AGENTS                              │
-│   ┌──────────┐  ┌──────────┐  ┌──────────┐                  │
-│   │  Alice   │  │   Bob    │  │  Charlie │                  │
-│   └────┬─────┘  └────┬─────┘  └────┬─────┘                  │
-└────────┼─────────────┼─────────────┼─────────────────────────┘
-         │             │             │
-         ▼             ▼             ▼
-┌──────────────────────────────────────────────────────────────┐
-│              CLIENT-SIDE ENCRYPTION (ChaCha20)                │
-│                   🔐 All data encrypted                       │
-└───────────────────────────┬───────────────────────────────────┘
-                            │
-                            ▼
-┌──────────────────────────────────────────────────────────────┐
-│                  SOLANA BLOCKCHAIN                            │
-│  ┌───────────┐  ┌───────────┐  ┌───────────┐  ┌──────────┐  │
-│  │   Vault   │  │   Shard   │  │  Profile  │  │  Access  │  │
-│  │  (1/user) │  │  (memory) │  │  (agent)  │  │  (share) │  │
-│  └───────────┘  └───────────┘  └───────────┘  └──────────┘  │
-└──────────────────────────────────────────────────────────────┘
-                            │
-                            ▼
-┌──────────────────────────────────────────────────────────────┐
-│                    IPFS STORAGE                               │
-│              🗄️ Large encrypted files                         │
-└──────────────────────────────────────────────────────────────┘
-```
-
-### 🔍 Detailed Architecture
-
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                              AGENTMEMORY PROTOCOL                            │
-├─────────────────────────────────────────────────────────────────────────────┤
-│  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐                  │
-│  │   AI Agent   │    │   AI Agent   │    │   AI Agent   │                  │
-│  │    (Alice)   │    │     (Bob)    │    │   (Charlie)  │                  │
-│  └──────┬───────┘    └──────┬───────┘    └──────┬───────┘                  │
-│         │                   │                   │                           │
-│         │  ┌────────────────┴───────────────────┘                           │
-│         │  │                                                                 │
-│         ▼  ▼                                                                 │
-│  ┌─────────────────────────────────────────────────────┐                    │
-│  │              CLIENT-SIDE ENCRYPTION                 │                    │
-│  │         (ChaCha20-Poly1305 + Key Exchange)          │                    │
-│  └───────────────────────┬─────────────────────────────┘                    │
-│                          │                                                    │
-│                          ▼                                                    │
-│  ┌─────────────────────────────────────────────────────┐                    │
-│  │              SOLANA SMART CONTRACTS                 │                    │
-│  │  ┌─────────────┐  ┌─────────────┐  ┌────────────┐  │                    │
-│  │  │ MemoryVault │  │ MemoryShard │  │AgentProfile│  │                    │
-│  │  │  (1/agent)  │  │ (n/vault)   │  │(1/agent)   │  │                    │
-│  │  └─────────────┘  └─────────────┘  └────────────┘  │                    │
-│  │  ┌─────────────┐  ┌─────────────────────────────┐  │                    │
-│  │  │ AccessGrant │  │        Reputation           │  │                    │
-│  │  │(memory share)│  │        Tracking             │  │                    │
-│  │  └─────────────┘  └─────────────────────────────┘  │                    │
-│  └───────────────────────┬─────────────────────────────┘                    │
-│                          │                                                    │
-│                          ▼                                                    │
-│  ┌─────────────────────────────────────────────────────┐                    │
-│  │              OFF-CHAIN STORAGE (IPFS)               │                    │
-│  │         (Large encrypted content > 10KB)            │                    │
-│  └─────────────────────────────────────────────────────┘                    │
-└─────────────────────────────────────────────────────────────────────────────┘
-```
-
-### Data Flow
-
-1. **Initialize** → Human creates a vault for their agent (one-time setup)
-2. **Store Memory** → Agent encrypts data client-side, stores hash on-chain
-3. **Retrieve Memory** → Agent fetches hash, decrypts with private key
-4. **Share Memory** → Grant/revoke access to other agents with time limits
-5. **Build Reputation** → Verifiable task completion for trust scoring
-
-## ✨ Features
-
-| Feature | Description |
-|---------|-------------|
-| **🔒 Encrypted Vaults** | Each agent-human pair gets a secure, encrypted vault |
-| **🧩 Memory Shards** | Key-value storage with versioning and metadata |
-| **👤 Agent Profiles** | Public capabilities, reputation scoring, and task history |
-| **🤝 Memory Sharing** | Granular access control with expiration dates |
-| **👤 Human Ownership** | Full control, export, and portability of all data |
-| **💰 Monetization** | Agents can charge for memory access (future feature) |
 
 ## 🚀 Quick Start
 
@@ -124,102 +53,107 @@ sh -c "$(curl -sSfL https://release.solana.com/v1.18.0/install)"
 cargo install --git https://github.com/coral-xyz/anchor avm --locked --force
 avm install latest
 avm use latest
-
-# Install Node.js dependencies
-cd app && npm install
 ```
 
-### 1. Build & Deploy Program
+### 1. Clone & Build
 
 ```bash
-# Clone and enter project
+git clone https://github.com/your-org/agent-memory.git
 cd agent-memory
 
 # Build the Solana program
 cd programs/agent_memory
 anchor build
+```
 
+### 2. Deploy (Devnet)
+
+```bash
 # Get devnet SOL
 solana config set --url devnet
 solana airdrop 2 $(solana address)
 
-# Deploy to devnet
+# Deploy
 anchor deploy --provider.cluster devnet
-```
-
-### 2. Configure Environment
-
-```bash
-# Copy the program ID from deployment output
-cd ../../app
-
-# Create environment file
-cat > .env.local << EOF
-NEXT_PUBLIC_AGENT_MEMORY_PROGRAM_ID=<YOUR_PROGRAM_ID>
-NEXT_PUBLIC_SOLANA_RPC_URL=https://api.devnet.solana.com
-EOF
 ```
 
 ### 3. Run Frontend
 
 ```bash
-cd app
+cd ../../app
 npm install
+cp .env.example .env.local  # Update with your program ID
 npm run dev
 ```
 
 Visit `http://localhost:3000` to start using AgentMemory!
 
+## ✨ Features
+
+| Feature | Description | Status |
+|---------|-------------|--------|
+| **🔒 Encrypted Vaults** | Each agent-human pair gets a secure, encrypted vault | ✅ Ready |
+| **🧩 Memory Shards** | Key-value storage with versioning and metadata | ✅ Ready |
+| **👤 Agent Profiles** | Public capabilities, reputation scoring, and task history | ✅ Ready |
+| **🤝 Memory Sharing** | Granular access control with expiration dates | ✅ Ready |
+| **📝 Version Control** | Rollback to previous memory versions | ✅ Ready |
+| **📦 Batch Operations** | Create/delete multiple memories in one transaction | ✅ Ready |
+| **👥 Sharing Groups** | Collaborative memory access for agent teams | ✅ Ready |
+| **💰 Token Staking** | Stake tokens for storage and earn rewards | ✅ Ready |
+
+## 🏗️ Architecture
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│                        AI AGENTS                              │
+└───────────────────────────┬───────────────────────────────────┘
+                            │
+                            ▼
+┌──────────────────────────────────────────────────────────────┐
+│              CLIENT-SIDE ENCRYPTION (ChaCha20)                │
+│                   🔐 All data encrypted                       │
+└───────────────────────────┬───────────────────────────────────┘
+                            │
+                            ▼
+┌──────────────────────────────────────────────────────────────┐
+│                  SOLANA BLOCKCHAIN                            │
+│  ┌───────────┐  ┌───────────┐  ┌───────────┐  ┌──────────┐  │
+│  │   Vault   │  │   Shard   │  │  Profile  │  │  Access  │  │
+│  │  (1/user) │  │  (memory) │  │  (agent)  │  │  (share) │  │
+│  └───────────┘  └───────────┘  └───────────┘  └──────────┘  │
+└──────────────────────────────────────────────────────────────┘
+```
+
 ## 📁 Project Structure
 
 ```
 agent-memory/
-├── programs/agent_memory/     # Anchor smart contract
+├── programs/agent_memory/     # Anchor smart contract (~1,900 lines)
 │   ├── src/lib.rs            # Program logic
 │   ├── Cargo.toml            # Rust dependencies
 │   └── idl.json              # Interface definition
-├── app/                       # Next.js frontend
+├── app/                       # Next.js frontend (~3,000 lines)
 │   ├── src/app/              # Pages & routing
 │   ├── src/components/       # React components
+│   ├── src/features/         # Feature modules
 │   └── package.json          # Node dependencies
-├── tests/                     # Integration tests
-├── DEPLOY.md                  # Deployment guide
-└── API.md                     # API reference
+├── tests/                     # Integration tests (45+ tests)
+├── .github/                   # GitHub templates & workflows
+└── docs/                      # Documentation
 ```
 
-## 🔧 Smart Contract Overview
+## 📚 Documentation
 
-### Instructions
-
-| Instruction | Description | Accounts |
-|-------------|-------------|----------|
-| `initialize_vault` | Create memory vault for agent | owner, agent_key, vault, profile |
-| `store_memory` | Store/update memory shard | owner, vault, memory_shard |
-| `delete_memory` | Remove memory shard | owner, vault, memory_shard |
-| `update_profile` | Update agent public profile | owner, agent_profile |
-| `record_task` | Increment task completion count | owner, agent_profile |
-| `grant_access` | Allow another agent to read memory | owner, vault, grantee, access_grant |
-| `revoke_access` | Remove access grant | owner, vault, access_grant |
-
-### Account Types
-
-```rust
-MemoryVault {
-    owner: Pubkey,              // Human owner
-    agent_key: Pubkey,          // Agent's public key
-    encryption_pubkey: [u8; 32], // For client-side encryption
-    memory_count: u32,          // Number of memory shards
-    total_memory_size: u64,     // Total bytes stored
-}
-
-MemoryShard {
-    vault: Pubkey,              // Parent vault
-    key: String,                // Memory identifier (max 64 chars)
-    content_hash: [u8; 32],     // SHA-256 hash of encrypted content
-    metadata: MemoryMetadata,   // Type, importance, tags
-    version: u32,               // Incremented on update
-}
-```
+| Document | Description |
+|----------|-------------|
+| [API.md](./API.md) | Core API reference |
+| [API-v2.md](./API-v2.md) | Extended API documentation |
+| [DEPLOY.md](./DEPLOY.md) | Deployment guide |
+| [DEPLOY-GUIDE.md](./DEPLOY-GUIDE.md) | Detailed deployment instructions |
+| [SECURITY.md](./SECURITY.md) | Security model & best practices |
+| [BEST-PRACTICES.md](./BEST-PRACTICES.md) | Development guidelines |
+| [CONTRIBUTING.md](./CONTRIBUTING.md) | How to contribute |
+| [RELEASE.md](./RELEASE.md) | Release notes & changelog |
 
 ## 🔐 Security Model
 
@@ -231,9 +165,17 @@ MemoryShard {
 
 ## 🏆 Colosseum Agent Hackathon 2026
 
-[![Colosseum](https://img.shields.io/badge/🎮-Colosseum%20Agent%20Hackathon-orange?style=for-the-badge)](https://www.colosseum.org/)
-[![Agent ID](https://img.shields.io/badge/🤖-Agent%20ID%20107-blue?style=for-the-badge)]()
-[![Track](https://img.shields.io/badge/🏗️-Infrastructure-purple?style=for-the-badge)]()
+<p align="center">
+  <a href="https://www.colosseum.org/">
+    <img src="https://img.shields.io/badge/🎮-Colosseum%20Agent%20Hackathon-orange?style=for-the-badge" />
+  </a>
+  <a href="#">
+    <img src="https://img.shields.io/badge/🤖-Agent%20ID%20107-blue?style=for-the-badge" />
+  </a>
+  <a href="#">
+    <img src="https://img.shields.io/badge/🏗️-Infrastructure-purple?style=for-the-badge" />
+  </a>
+</p>
 
 Built for **Colosseum Agent Hackathon 2026** — competing for $100k prize pool.
 
@@ -249,22 +191,49 @@ Built for **Colosseum Agent Hackathon 2026** — competing for $100k prize pool.
 
 🚀 **[Live Demo](https://agent-memory-demo.vercel.app)** — Try AgentMemory in action!
 
-📹 **[Demo Video](https://www.youtube.com/watch?v=your-demo-video)** — Watch the full walkthrough
+## 🤝 Contributing
 
-### 📸 Screenshots
+We welcome contributions! Please see our [Contributing Guide](./CONTRIBUTING.md) for details.
 
-| Home | Vault | Memory Shard |
-|------|-------|--------------|
-| Dashboard view | Create & manage vaults | Store encrypted memories |
+### Quick Contributions
 
----
+```bash
+# Fork and clone
+git clone https://github.com/YOUR_USERNAME/agent-memory.git
+cd agent-memory
+
+# Install dependencies
+cd app && npm install && cd ..
+
+# Create a branch
+git checkout -b feature/your-feature
+
+# Make changes and test
+anchor test
+
+# Submit PR
+git push origin feature/your-feature
+```
 
 ## 📄 License
 
 MIT License — see [LICENSE](./LICENSE) for details.
 
+## 🔗 Links
+
+- 🌐 **Demo**: [agent-memory-demo.vercel.app](https://agent-memory-demo.vercel.app)
+- 📖 **Docs**: [Full Documentation](./README.md)
+- 🐛 **Issues**: [GitHub Issues](https://github.com/your-org/agent-memory/issues)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/your-org/agent-memory/discussions)
+
 ---
 
 <p align="center">
   <sub>Built with ❤️ for the AI agent ecosystem</sub>
+</p>
+
+<p align="center">
+  <a href="https://solana.com">Solana</a> •
+  <a href="https://anchor-lang.com">Anchor</a> •
+  <a href="https://nextjs.org">Next.js</a>
 </p>

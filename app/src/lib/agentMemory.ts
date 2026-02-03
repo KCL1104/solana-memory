@@ -35,7 +35,18 @@ export interface MemoryVault {
   updatedAt: bigint;
   memoryCount: number;
   totalMemorySize: bigint;
+  stakedAmount: bigint;
+  rewardPoints: number;
   isActive: boolean;
+  bump: number;
+}
+
+export interface VersionRecord {
+  version: number;
+  contentHash: Uint8Array;
+  contentSize: number;
+  metadata: MemoryMetadata;
+  createdAt: bigint;
 }
 
 export interface MemoryShard {
@@ -47,7 +58,10 @@ export interface MemoryShard {
   createdAt: bigint;
   updatedAt: bigint;
   version: number;
-  isEncrypted: boolean;
+  isDeleted: boolean;
+  deletedAt?: bigint;
+  versionHistory: VersionRecord[];
+  bump: number;
 }
 
 export interface AgentProfile {
@@ -60,7 +74,9 @@ export interface AgentProfile {
   tasksCompleted: number;
   createdAt: bigint;
   updatedAt: bigint;
+  lastTaskAt: bigint;
   isPublic: boolean;
+  bump: number;
 }
 
 // Program ID (Devnet deployment)
@@ -68,10 +84,10 @@ export const AGENT_MEMORY_PROGRAM_ID = new PublicKey(
   process.env.NEXT_PUBLIC_PROGRAM_ID || 'Memo111111111111111111111111111111111111111'
 );
 
-// Instruction discriminators (8 bytes each)
+// Instruction discriminators (8 bytes each) - should match Anchor IDL
 const INSTRUCTION_DISCRIMINATORS = {
   initializeVault: Buffer.from([0x1a, 0x8b, 0x4c, 0x7d, 0x9e, 0x2f, 0x5a, 0x3c]),
-  storeMemory: Buffer.from([0x2b, 0x9c, 0x5d, 0x8e, 0x1f, 0x6a, 0x4b, 0x7d]),
+  createMemory: Buffer.from([0x2b, 0x9c, 0x5d, 0x8e, 0x1f, 0x6a, 0x4b, 0x7d]),
   deleteMemory: Buffer.from([0x3c, 0xad, 0x6e, 0x9f, 0x2a, 0x7b, 0x5c, 0x8e]),
   updateProfile: Buffer.from([0x4d, 0xbe, 0x7f, 0x1a, 0x3b, 0x8c, 0x6d, 0x9f]),
   updateMemory: Buffer.from([0x5e, 0xcf, 0x8a, 0x2b, 0x4c, 0x9d, 0x7e, 0x1a]),
@@ -339,17 +355,16 @@ export class AgentMemoryClient {
   }
 
   /**
-   * Store a memory shard
+   * Create a memory shard (matches contract instruction name)
    */
-  async storeMemory(
+  async createMemory(
     owner: PublicKey,
     vault: PublicKey,
     key: string,
     contentHash: Uint8Array,
     contentSize: number,
     metadata: MemoryMetadata,
-    payer: web3.Signer,
-    isEncrypted: boolean = true
+    payer: web3.Signer
   ): Promise<{ memoryPda: PublicKey; result: TransactionResult }> {
     const [memoryPda] = this.findMemoryPda(vault, key);
 
@@ -359,7 +374,7 @@ export class AgentMemoryClient {
     const transaction = new Transaction();
 
     // Create memory account
-    const createMemoryIx = SystemProgram.createAccount({
+    const createMemoryAccountIx = SystemProgram.createAccount({
       fromPubkey: payer.publicKey,
       newAccountPubkey: memoryPda,
       lamports: memoryRent,
@@ -370,8 +385,8 @@ export class AgentMemoryClient {
     // Serialize metadata
     const metadataBuffer = this.serializeMetadata(metadata);
 
-    // Store memory instruction
-    const storeMemoryIx = new TransactionInstruction({
+    // Create memory instruction
+    const createMemoryIx = new TransactionInstruction({
       keys: [
         { pubkey: memoryPda, isSigner: false, isWritable: true },
         { pubkey: vault, isSigner: false, isWritable: true },
@@ -380,20 +395,36 @@ export class AgentMemoryClient {
       ],
       programId: this.programId,
       data: Buffer.concat([
-        INSTRUCTION_DISCRIMINATORS.storeMemory,
+        INSTRUCTION_DISCRIMINATORS.createMemory,
         Buffer.from(key),
         Buffer.from(contentHash),
         Buffer.from(new Uint32Array([contentSize]).buffer),
-        Buffer.from([isEncrypted ? 1 : 0]),
         metadataBuffer,
       ]),
     });
 
-    transaction.add(createMemoryIx, storeMemoryIx);
+    transaction.add(createMemoryAccountIx, createMemoryIx);
 
     const result = await this.sendAndConfirmTransaction(transaction, [payer]);
 
     return { memoryPda, result };
+  }
+
+  /**
+   * @deprecated Use createMemory instead
+   */
+  async storeMemory(
+    owner: PublicKey,
+    vault: PublicKey,
+    key: string,
+    contentHash: Uint8Array,
+    contentSize: number,
+    metadata: MemoryMetadata,
+    payer: web3.Signer,
+    _isEncrypted: boolean = true
+  ): Promise<{ memoryPda: PublicKey; result: TransactionResult }> {
+    // Delegate to createMemory for backwards compatibility
+    return this.createMemory(owner, vault, key, contentHash, contentSize, metadata, payer);
   }
 
   /**
@@ -646,6 +677,56 @@ export class AgentMemoryClient {
 
       // Parse version
       const version = data.readUInt32LE(offset);
+      offset += 4;
+
+      // Parse isDeleted
+      const isDeleted = data[offset] === 1;
+      offset += 1;
+
+      // Parse deletedAt (optional)
+      const hasDeletedAt = data[offset] === 1;
+      offset += 1;
+      let deletedAt: bigint | undefined;
+      if (hasDeletedAt) {
+        deletedAt = BigInt(data.readBigUInt64LE(offset));
+        offset += 8;
+      }
+
+      // Parse version history length
+      const historyLength = data.readUInt32LE(offset);
+      offset += 4;
+
+      // Parse version history
+      const versionHistory: VersionRecord[] = [];
+      for (let i = 0; i < historyLength; i++) {
+        const recordVersion = data.readUInt32LE(offset);
+        offset += 4;
+        const recordHash = new Uint8Array(data.slice(offset, offset + 32));
+        offset += 32;
+        const recordSize = data.readUInt32LE(offset);
+        offset += 4;
+        const recordTypeIndex = data[offset];
+        offset += 1;
+        const recordImportance = data[offset];
+        offset += 1;
+        const recordCreatedAt = BigInt(data.readBigUInt64LE(offset));
+        offset += 8;
+
+        versionHistory.push({
+          version: recordVersion,
+          contentHash: recordHash,
+          contentSize: recordSize,
+          metadata: {
+            memoryType: memoryTypes[recordTypeIndex] || 'conversation',
+            importance: recordImportance,
+            tags: [], // Simplified - tags not stored per version
+          },
+          createdAt: recordCreatedAt,
+        });
+      }
+
+      // Parse bump
+      const bump = data[offset];
 
       return {
         vault,
@@ -660,7 +741,10 @@ export class AgentMemoryClient {
         createdAt,
         updatedAt,
         version,
-        isEncrypted,
+        isDeleted,
+        deletedAt,
+        versionHistory,
+        bump,
       };
     } catch (error) {
       console.error('Error parsing memory shard:', error);
@@ -693,7 +777,16 @@ export class AgentMemoryClient {
       const totalMemorySize = BigInt(data.readBigUInt64LE(offset));
       offset += 8;
 
+      const stakedAmount = BigInt(data.readBigUInt64LE(offset));
+      offset += 8;
+
+      const rewardPoints = data.readUInt32LE(offset);
+      offset += 4;
+
       const isActive = data[offset] === 1;
+      offset += 1;
+
+      const bump = data[offset];
 
       return {
         owner,
@@ -703,7 +796,10 @@ export class AgentMemoryClient {
         updatedAt,
         memoryCount,
         totalMemorySize,
+        stakedAmount,
+        rewardPoints,
         isActive,
+        bump,
       };
     } catch (error) {
       console.error('Error parsing vault:', error);
@@ -747,7 +843,13 @@ export class AgentMemoryClient {
       const updatedAt = BigInt(data.readBigUInt64LE(offset));
       offset += 8;
 
+      const lastTaskAt = BigInt(data.readBigUInt64LE(offset));
+      offset += 8;
+
       const isPublic = data[offset] === 1;
+      offset += 1;
+
+      const bump = data[offset];
 
       return {
         agentKey,
@@ -759,7 +861,9 @@ export class AgentMemoryClient {
         tasksCompleted,
         createdAt,
         updatedAt,
+        lastTaskAt,
         isPublic,
+        bump,
       };
     } catch (error) {
       console.error('Error parsing profile:', error);

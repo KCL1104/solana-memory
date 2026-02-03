@@ -1,0 +1,41 @@
+{
+  "name": "@solana-agent-kit/plugin-memory",
+  "version": "1.0.0",
+  "description": "Memory plugin for Solana Agent Kit - Store, retrieve, and manage agent memories on Solana blockchain",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "jest",
+    "lint": "eslint src/**/*.ts",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "solana",
+    "agent",
+    "memory",
+    "blockchain",
+    "ai",
+    "plugin"
+  ],
+  "author": "OpenClaw",
+  "license": "MIT",
+  "peerDependencies": {
+    "solana-agent-kit": "^2.0.0"
+  },
+  "dependencies": {
+    "@solana/web3.js": "^1.87.0",
+    "zod": "^3.22.0",
+    "bs58": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "eslint": "^8.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "jest": "^29.0.0",
+    "@types/jest": "^29.0.0"
+  }
+}

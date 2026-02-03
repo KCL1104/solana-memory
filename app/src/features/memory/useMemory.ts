@@ -42,15 +42,14 @@ export function useMemory() {
         secretKey: new Uint8Array(64),
       };
 
-      const { memoryPda, result } = await client.storeMemory(
+      const { memoryPda, result } = await client.createMemory(
         owner,
         params.vault,
         params.key,
         contentHash,
         contentSize,
         params.metadata,
-        signer,
-        params.isEncrypted ?? true
+        signer
       );
 
       if (result.success) {

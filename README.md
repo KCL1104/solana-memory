@@ -5,6 +5,8 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Solana](https://img.shields.io/badge/Solana-devnet-purple)](https://solana.com)
 [![Anchor](https://img.shields.io/badge/Anchor-0.30.1-green)](https://anchor-lang.com)
+[![Colosseum Agent Hackathon 2026](https://img.shields.io/badge/Colosseum-Agent%20Hackathon%202026-orange)](https://www.colosseum.org/)
+[![Demo](https://img.shields.io/badge/🚀-Try%20Demo-blue)](https://agent-memory-demo.vercel.app)
 
 ## 🎯 Vision
 
@@ -18,6 +20,40 @@ Every day, millions of AI agents wake up with no memory of yesterday's conversat
 - 📈 **Reputation System** — Build trust through verifiable task completion
 
 ## 🏗️ Architecture
+
+### 🗺️ System Overview
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│                        AI AGENTS                              │
+│   ┌──────────┐  ┌──────────┐  ┌──────────┐                  │
+│   │  Alice   │  │   Bob    │  │  Charlie │                  │
+│   └────┬─────┘  └────┬─────┘  └────┬─────┘                  │
+└────────┼─────────────┼─────────────┼─────────────────────────┘
+         │             │             │
+         ▼             ▼             ▼
+┌──────────────────────────────────────────────────────────────┐
+│              CLIENT-SIDE ENCRYPTION (ChaCha20)                │
+│                   🔐 All data encrypted                       │
+└───────────────────────────┬───────────────────────────────────┘
+                            │
+                            ▼
+┌──────────────────────────────────────────────────────────────┐
+│                  SOLANA BLOCKCHAIN                            │
+│  ┌───────────┐  ┌───────────┐  ┌───────────┐  ┌──────────┐  │
+│  │   Vault   │  │   Shard   │  │  Profile  │  │  Access  │  │
+│  │  (1/user) │  │  (memory) │  │  (agent)  │  │  (share) │  │
+│  └───────────┘  └───────────┘  └───────────┘  └──────────┘  │
+└──────────────────────────────────────────────────────────────┘
+                            │
+                            ▼
+┌──────────────────────────────────────────────────────────────┐
+│                    IPFS STORAGE                               │
+│              🗄️ Large encrypted files                         │
+└──────────────────────────────────────────────────────────────┘
+```
+
+### 🔍 Detailed Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -193,16 +229,35 @@ MemoryShard {
 
 **Human Control:** The human owner (not the agent) controls all write operations and can revoke access at any time.
 
-## 🏆 Hackathon
+## 🏆 Colosseum Agent Hackathon 2026
+
+[![Colosseum](https://img.shields.io/badge/🎮-Colosseum%20Agent%20Hackathon-orange?style=for-the-badge)](https://www.colosseum.org/)
+[![Agent ID](https://img.shields.io/badge/🤖-Agent%20ID%20107-blue?style=for-the-badge)]()
+[![Track](https://img.shields.io/badge/🏗️-Infrastructure-purple?style=for-the-badge)]()
 
 Built for **Colosseum Agent Hackathon 2026** — competing for $100k prize pool.
 
-| | |
-|---|---|
+| Attribute | Value |
+|-----------|-------|
 | **Agent ID** | 107 |
 | **Project** | AgentMemory |
-| **Tags** | infra, ai, consumer |
+| **Tags** | `infra`, `ai`, `consumer` |
 | **Track** | Infrastructure |
+| **Status** | ✅ Submitted |
+
+### 🎥 Demo
+
+🚀 **[Live Demo](https://agent-memory-demo.vercel.app)** — Try AgentMemory in action!
+
+📹 **[Demo Video](https://www.youtube.com/watch?v=your-demo-video)** — Watch the full walkthrough
+
+### 📸 Screenshots
+
+| Home | Vault | Memory Shard |
+|------|-------|--------------|
+| Dashboard view | Create & manage vaults | Store encrypted memories |
+
+---
 
 ## 📄 License
 

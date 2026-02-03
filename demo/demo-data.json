@@ -1,0 +1,258 @@
+{
+  "demo_metadata": {
+    "title": "AgentMemory Demo Dataset",
+    "version": "1.0.0",
+    "created": "2026-02-03",
+    "purpose": "Hackathon demonstration for Alice's AI Assistant scenario",
+    "agent_id": "alice_assistant"
+  },
+  "agents": [
+    {
+      "id": "alice_assistant",
+      "name": "Alice Personal Assistant",
+      "description": "AI assistant for Alice, marketing manager at TechCorp",
+      "created_at": "2026-01-15T08:00:00Z",
+      "metadata": {
+        "user_name": "Alice Chen",
+        "user_role": "Marketing Manager",
+        "company": "TechCorp",
+        "language_preference": "zh-TW, en-US"
+      }
+    },
+    {
+      "id": "bob_assistant",
+      "name": "Bob Personal Assistant",
+      "description": "AI assistant for Bob, software engineer (for multi-agent demo)",
+      "created_at": "2026-01-20T10:00:00Z",
+      "metadata": {
+        "user_name": "Bob Smith",
+        "user_role": "Software Engineer",
+        "company": "TechCorp"
+      }
+    }
+  ],
+  "memories": [
+    {
+      "id": "mem_alice_001",
+      "agent_id": "alice_assistant",
+      "content": "Alice is a marketing manager at TechCorp. She prefers coffee over tea, especially iced lattes from Blue Bottle. She has a 3-year-old tabby cat named Whiskers.",
+      "tags": ["preference", "personal", "intro", "beverage", "pet"],
+      "priority": "normal",
+      "created_at": "2026-01-15T09:30:00Z",
+      "embedding_sample": "[0.023, -0.156, 0.089, ..., 0.045]"
+    },
+    {
+      "id": "mem_alice_002",
+      "agent_id": "alice_assistant",
+      "content": "Alice is stressed about the Q4 product launch campaign. The hard deadline is November 15th. She prefers working early mornings (6-9 AM) when she's most productive and focused.",
+      "tags": ["work", "stress", "schedule", "deadline"],
+      "priority": "high",
+      "created_at": "2026-01-20T07:15:00Z",
+      "embedding_sample": "[0.112, -0.089, 0.203, ..., 0.067]"
+    },
+    {
+      "id": "mem_alice_003",
+      "agent_id": "alice_assistant",
+      "content": "Whiskers has a vet appointment on Friday at 4 PM. Alice is worried because he hasn't been eating well for the past two days and seems lethargic.",
+      "tags": ["pet", "health", "whiskers", "appointment"],
+      "priority": "high",
+      "created_at": "2026-01-28T18:45:00Z",
+      "embedding_sample": "[0.087, -0.134, 0.156, ..., 0.023]"
+    },
+    {
+      "id": "mem_alice_004",
+      "agent_id": "alice_assistant",
+      "content": "Alice's favorite color is navy blue. She mentioned this when discussing the new presentation template design.",
+      "tags": ["preference", "design", "color"],
+      "priority": "low",
+      "created_at": "2026-01-22T14:20:00Z"
+    },
+    {
+      "id": "mem_alice_005",
+      "agent_id": "alice_assistant",
+      "content": "Alice has a weekly standup every Monday at 9 AM with the marketing team. She usually prepares the agenda on Sunday evenings.",
+      "tags": ["work", "routine", "meeting", "schedule"],
+      "priority": "normal",
+      "created_at": "2026-01-18T11:00:00Z"
+    },
+    {
+      "id": "mem_alice_006",
+      "agent_id": "alice_assistant",
+      "content": "Alice dislikes loud noises and prefers quiet workspaces. She mentioned this when asking about co-working space recommendations.",
+      "tags": ["preference", "work_environment", "intro"],
+      "priority": "normal",
+      "created_at": "2026-01-25T16:30:00Z"
+    },
+    {
+      "id": "mem_alice_007",
+      "agent_id": "alice_assistant",
+      "content": "Alice's birthday is on March 15th. She prefers low-key celebrations with close friends rather than big parties.",
+      "tags": ["personal", "birthday", "preference"],
+      "priority": "normal",
+      "created_at": "2026-02-01T20:00:00Z"
+    },
+    {
+      "id": "mem_alice_008",
+      "agent_id": "alice_assistant",
+      "content": "Alice learned that her competitor launched a similar product last week. She's concerned but believes her product has better UX.",
+      "tags": ["work", "competition", "product", "concern"],
+      "priority": "high",
+      "created_at": "2026-02-02T09:00:00Z"
+    },
+    {
+      "id": "mem_bob_001",
+      "agent_id": "bob_assistant",
+      "content": "Bob prefers tea over coffee. He's a morning person who likes to code from 5-8 AM before meetings start.",
+      "tags": ["preference", "schedule", "work"],
+      "priority": "normal",
+      "created_at": "2026-01-20T10:30:00Z"
+    },
+    {
+      "id": "mem_bob_002",
+      "agent_id": "bob_assistant",
+      "content": "Bob is working on the authentication service migration. The deadline is tight and he's been pair programming with Sarah.",
+      "tags": ["work", "project", "deadline"],
+      "priority": "high",
+      "created_at": "2026-01-25T11:15:00Z"
+    }
+  ],
+  "conversations": [
+    {
+      "id": "conv_001",
+      "agent_id": "alice_assistant",
+      "turns": [
+        {
+          "role": "user",
+          "content": "Hi, I'm Alice. I'm a marketing manager at TechCorp.",
+          "timestamp": "2026-01-15T09:30:00Z"
+        },
+        {
+          "role": "assistant",
+          "content": "Nice to meet you, Alice! I've noted that you're a marketing manager at TechCorp. How can I help you today?",
+          "timestamp": "2026-01-15T09:30:05Z",
+          "memory_created": "mem_alice_001"
+        },
+        {
+          "role": "user",
+          "content": "I really love iced lattes, especially from Blue Bottle. Way better than tea for me.",
+          "timestamp": "2026-01-15T09:32:00Z"
+        },
+        {
+          "role": "assistant",
+          "content": "Got it! I'll remember you prefer iced lattes from Blue Bottle over tea.",
+          "timestamp": "2026-01-15T09:32:03Z",
+          "memory_updated": "mem_alice_001"
+        }
+      ]
+    },
+    {
+      "id": "conv_002",
+      "agent_id": "alice_assistant",
+      "turns": [
+        {
+          "role": "user",
+          "content": "I'm so stressed about the Q4 product launch. The deadline is November 15th and there's so much to do!",
+          "timestamp": "2026-01-20T07:15:00Z"
+        },
+        {
+          "role": "assistant",
+          "content": "I understand your stress about the Q4 launch. I've noted the November 15th deadline. When do you usually feel most productive for tackling big projects?",
+          "timestamp": "2026-01-20T07:15:08Z",
+          "memory_created": "mem_alice_002"
+        },
+        {
+          "role": "user",
+          "content": "I'm definitely a morning person. 6-9 AM is my golden time for focused work.",
+          "timestamp": "2026-01-20T07:16:00Z"
+        },
+        {
+          "role": "assistant",
+          "content": "Perfect! I'll remember that your peak productivity is 6-9 AM. We can prioritize your launch tasks during those hours.",
+          "timestamp": "2026-01-20T07:16:04Z",
+          "memory_updated": "mem_alice_002"
+        }
+      ]
+    },
+    {
+      "id": "conv_003",
+      "agent_id": "alice_assistant",
+      "turns": [
+        {
+          "role": "user",
+          "content": "Whiskers has a vet appointment Friday. I'm worried - he hasn't been eating well.",
+          "timestamp": "2026-01-28T18:45:00Z"
+        },
+        {
+          "role": "assistant",
+          "content": "I'm sorry to hear Whiskers isn't eating well. I remember he's your 3-year-old tabby cat. I've noted the Friday vet appointment at 4 PM and that he's been lethargic for two days. I hope he feels better soon!",
+          "timestamp": "2026-01-28T18:45:10Z",
+          "memory_created": "mem_alice_003",
+          "memories_referenced": ["mem_alice_001"]
+        }
+      ]
+    }
+  ],
+  "search_examples": [
+    {
+      "query": "What does Alice like to drink?",
+      "expected_memories": ["mem_alice_001"],
+      "description": "Basic preference recall"
+    },
+    {
+      "query": "When is Alice most productive?",
+      "expected_memories": ["mem_alice_002", "mem_alice_005"],
+      "description": "Schedule and work habit recall"
+    },
+    {
+      "query": "Tell me about Alice's pet",
+      "expected_memories": ["mem_alice_001", "mem_alice_003"],
+      "description": "Pet-related memories across time"
+    },
+    {
+      "query": "What is Alice stressed about?",
+      "expected_memories": ["mem_alice_002", "mem_alice_008"],
+      "description": "Emotional state and concerns"
+    },
+    {
+      "query": "work schedule morning",
+      "tags": ["work", "schedule"],
+      "expected_memories": ["mem_alice_002", "mem_alice_005"],
+      "description": "Tag-filtered search"
+    }
+  ],
+  "api_examples": {
+    "create_memory": {
+      "method": "POST",
+      "endpoint": "/api/agents/alice_assistant/memories",
+      "body": {
+        "content": "Alice prefers iced lattes over tea",
+        "tags": ["preference", "beverage"],
+        "priority": "normal"
+      }
+    },
+    "search_memory": {
+      "method": "GET",
+      "endpoint": "/api/agents/alice_assistant/memories/search",
+      "params": {
+        "q": "What does Alice like to drink?",
+        "limit": 5
+      }
+    },
+    "get_agent_memories": {
+      "method": "GET",
+      "endpoint": "/api/agents/alice_assistant/memories",
+      "params": {
+        "tags": "work,schedule",
+        "priority": "high"
+      }
+    },
+    "update_memory": {
+      "method": "PUT",
+      "endpoint": "/api/agents/alice_assistant/memories/mem_alice_001",
+      "body": {
+        "content": "Alice prefers iced lattes from Blue Bottle over tea",
+        "tags": ["preference", "beverage", "coffee"]
+      }
+    }
+  }
+}

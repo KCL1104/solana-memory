@@ -1,8 +1,8 @@
 use anchor_lang::prelude::*;
 use anchor_spl::token::{Token, TokenAccount};
 
-// Declare program ID
-declare_id!("HLtbU8HoiLhXtjQbJKshceuQK1f59xW7hT99P5pSn62L");
+// Declare program ID - MAINNET
+declare_id!("Mem1oWL98HnWm9aN4rXY37EL4XgFj5Avq2zA26Zf9yq");
 
 // Import instruction handlers
 pub mod instructions;

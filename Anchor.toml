@@ -3,7 +3,7 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
-agent_memory = "AgentMemDemo1111111111111111111111111111111"
+agent_memory = "HLtbU8HoiLhXtjQbJKshceuQK1f59xW7hT99P5pSn62L"
 
 [registry]
 url = "https://api.apr.dev"

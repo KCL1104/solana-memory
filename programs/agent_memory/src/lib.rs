@@ -1,8 +1,10 @@
 use anchor_lang::prelude::*;
 use anchor_lang::system_program;
 
-// Program ID - will be replaced with actual key
-// declare_id!("...");
+// Program ID - REPLACE THIS WITH YOUR DEPLOYED PROGRAM ID
+// Generate with: solana-keygen new --outfile target/deploy/agent_memory-keypair.json
+// Then run: solana address -k target/deploy/agent_memory-keypair.json
+declare_id!("Mem1oXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
 
 /// AgentMemory Protocol
 /// On-chain persistent memory for AI agents

@@ -1,19 +1,30 @@
 'use client';
 
-import React from 'react';
-import { SolanaProvider } from '@solana/react-hooks';
-import { autoDiscover, createClient } from '@solana/client';
-
-const endpoint = process.env.NEXT_PUBLIC_SOLANA_RPC_URL ?? 'https://api.devnet.solana.com';
-const websocketEndpoint = process.env.NEXT_PUBLIC_SOLANA_WS_URL ?? 
-  endpoint.replace('https://', 'wss://').replace('http://', 'ws://');
-
-export const solanaClient = createClient({
-  endpoint,
-  websocketEndpoint,
-  walletConnectors: autoDiscover(),
-});
+import React, { useMemo } from 'react';
+import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
+import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
+import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
+import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
+import { clusterApiUrl } from '@solana/web3.js';
+import '@solana/wallet-adapter-react-ui/styles.css';
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  return <SolanaProvider client={solanaClient}>{children}</SolanaProvider>;
+  const network = WalletAdapterNetwork.Devnet;
+  const endpoint = useMemo(() => clusterApiUrl(network), [network]);
+
+  const wallets = useMemo(
+    () => [
+      new PhantomWalletAdapter(),
+      new SolflareWalletAdapter(),
+    ],
+    []
+  );
+
+  return (
+    <ConnectionProvider endpoint={endpoint}>
+      <WalletProvider wallets={wallets} autoConnect>
+        <WalletModalProvider>{children}</WalletModalProvider>
+      </WalletProvider>
+    </ConnectionProvider>
+  );
 }

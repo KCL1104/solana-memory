@@ -1,0 +1,188 @@
+{
+  "version": "0.1.0",
+  "name": "agent_memory",
+  "instructions": [
+    {
+      "name": "initialize_vault",
+      "accounts": [
+        { "name": "owner", "isMut": true, "isSigner": true },
+        { "name": "agent_key", "isMut": false, "isSigner": false },
+        { "name": "vault", "isMut": true, "isSigner": false },
+        { "name": "agent_profile", "isMut": true, "isSigner": false },
+        { "name": "system_program", "isMut": false, "isSigner": false }
+      ],
+      "args": [{ "name": "encryption_pubkey", "type": { "array": ["u8", 32] } }]
+    },
+    {
+      "name": "store_memory",
+      "accounts": [
+        { "name": "owner", "isMut": true, "isSigner": true },
+        { "name": "vault", "isMut": true, "isSigner": false },
+        { "name": "memory_shard", "isMut": true, "isSigner": false },
+        { "name": "system_program", "isMut": false, "isSigner": false }
+      ],
+      "args": [
+        { "name": "key", "type": "string" },
+        { "name": "content_hash", "type": { "array": ["u8", 32] } },
+        { "name": "content_size", "type": "u32" },
+        { "name": "metadata", "type": { "defined": "MemoryMetadata" } }
+      ]
+    },
+    {
+      "name": "delete_memory",
+      "accounts": [
+        { "name": "owner", "isMut": true, "isSigner": true },
+        { "name": "vault", "isMut": true, "isSigner": false },
+        { "name": "memory_shard", "isMut": true, "isSigner": false },
+        { "name": "system_program", "isMut": false, "isSigner": false }
+      ],
+      "args": []
+    },
+    {
+      "name": "update_profile",
+      "accounts": [
+        { "name": "owner", "isMut": true, "isSigner": true },
+        { "name": "agent_profile", "isMut": true, "isSigner": false }
+      ],
+      "args": [
+        { "name": "name", "type": { "option": "string" } },
+        { "name": "capabilities", "type": { "option": { "vec": "string" } } },
+        { "name": "is_public", "type": { "option": "bool" } }
+      ]
+    },
+    {
+      "name": "record_task_completion",
+      "accounts": [
+        { "name": "owner", "isMut": true, "isSigner": true },
+        { "name": "agent_profile", "isMut": true, "isSigner": false }
+      ],
+      "args": []
+    },
+    {
+      "name": "grant_access",
+      "accounts": [
+        { "name": "owner", "isMut": true, "isSigner": true },
+        { "name": "vault", "isMut": false, "isSigner": false },
+        { "name": "grantee", "isMut": false, "isSigner": false },
+        { "name": "access_grant", "isMut": true, "isSigner": false },
+        { "name": "system_program", "isMut": false, "isSigner": false }
+      ],
+      "args": [{ "name": "expiration", "type": { "option": "i64" } }]
+    },
+    {
+      "name": "revoke_access",
+      "accounts": [
+        { "name": "owner", "isMut": true, "isSigner": true },
+        { "name": "vault", "isMut": false, "isSigner": false },
+        { "name": "access_grant", "isMut": true, "isSigner": false }
+      ],
+      "args": []
+    }
+  ],
+  "accounts": [
+    {
+      "name": "MemoryVault",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "owner", "type": "publicKey" },
+          { "name": "agent_key", "type": "publicKey" },
+          { "name": "encryption_pubkey", "type": { "array": ["u8", 32] } },
+          { "name": "created_at", "type": "i64" },
+          { "name": "updated_at", "type": "i64" },
+          { "name": "memory_count", "type": "u32" },
+          { "name": "total_memory_size", "type": "u64" },
+          { "name": "bump", "type": "u8" }
+        ]
+      }
+    },
+    {
+      "name": "MemoryShard",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "vault", "type": "publicKey" },
+          { "name": "key", "type": "string" },
+          { "name": "content_hash", "type": { "array": ["u8", 32] } },
+          { "name": "content_size", "type": "u32" },
+          { "name": "metadata", "type": { "defined": "MemoryMetadata" } },
+          { "name": "created_at", "type": "i64" },
+          { "name": "updated_at", "type": "i64" },
+          { "name": "version", "type": "u32" },
+          { "name": "bump", "type": "u8" }
+        ]
+      }
+    },
+    {
+      "name": "AgentProfile",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "agent_key", "type": "publicKey" },
+          { "name": "owner", "type": "publicKey" },
+          { "name": "vault", "type": "publicKey" },
+          { "name": "name", "type": "string" },
+          { "name": "capabilities", "type": { "vec": "string" } },
+          { "name": "reputation_score", "type": "u32" },
+          { "name": "tasks_completed", "type": "u32" },
+          { "name": "created_at", "type": "i64" },
+          { "name": "updated_at", "type": "i64" },
+          { "name": "is_public", "type": "bool" },
+          { "name": "bump", "type": "u8" }
+        ]
+      }
+    },
+    {
+      "name": "AccessGrant",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "vault", "type": "publicKey" },
+          { "name": "grantee", "type": "publicKey" },
+          { "name": "granted_at", "type": "i64" },
+          { "name": "expires_at", "type": { "option": "i64" } },
+          { "name": "is_active", "type": "bool" },
+          { "name": "bump", "type": "u8" }
+        ]
+      }
+    }
+  ],
+  "types": [
+    {
+      "name": "MemoryMetadata",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "memory_type", "type": { "defined": "MemoryType" } },
+          { "name": "importance", "type": "u8" },
+          { "name": "tags", "type": { "array": ["u8", 8] } },
+          { "name": "ipfs_cid", "type": { "option": { "array": ["u8", 46] } } }
+        ]
+      }
+    },
+    {
+      "name": "MemoryType",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          { "name": "Conversation" },
+          { "name": "Learning" },
+          { "name": "Preference" },
+          { "name": "Task" },
+          { "name": "Relationship" },
+          { "name": "Knowledge" },
+          { "name": "System" }
+        ]
+      }
+    }
+  ],
+  "errors": [
+    { "code": 6000, "name": "KeyTooLong", "msg": "Memory key too long (max 64 characters)" },
+    { "code": 6001, "name": "ContentTooLarge", "msg": "Content too large (max 10MB)" },
+    { "code": 6002, "name": "NameTooLong", "msg": "Name too long (max 128 characters)" },
+    { "code": 6003, "name": "TooManyCapabilities", "msg": "Too many capabilities (max 20)" },
+    { "code": 6004, "name": "CapabilityTooLong", "msg": "Capability description too long (max 64 characters)" },
+    { "code": 6005, "name": "AccessExpired", "msg": "Access expired" },
+    { "code": 6006, "name": "AccessNotGranted", "msg": "Access not granted" }
+  ]
+}

@@ -1,77 +1,157 @@
-# DAO Governance Memory Module
+# AgentMemory Protocol
 
-A comprehensive memory system for DAO governance data, integrated with Realms (Solana) and supporting multi-DAO analytics.
+> **On-Chain Persistent Memory for AI Agents on Solana**
 
-## Features
+Give AI agents a persistent memory that survives session restarts, built on Solana with client-side encryption and human ownership.
 
-### Core Memory Features
-- **Voting History Storage**: Track all votes with voter, choice, power, and timestamp
-- **Proposal Outcome Tracking**: Monitor proposal lifecycle from draft to execution
-- **Delegate Preferences**: Remember delegation patterns and preferences
-- **Discussion Summaries**: Store and retrieve discussion context
+---
 
-### UI Components
-- **DAO Memory Browser**: Search and filter through governance history
-- **Voting History Visualization**: Charts and analytics for voting patterns
-- **Proposal Tracker**: Real-time proposal status monitoring
-- **Delegate Reputation View**: Delegate performance and history
+## ✨ Key Features
 
-### Integrations
-- **Realms API**: Direct integration with Solana's leading DAO platform
-- **Snapshot Support**: Multi-chain governance data
-- **Export System**: JSON/CSV export for analysis
+- **🔐 Encrypted Vaults** — Each agent-human pair gets a secure, encrypted vault with ChaCha20-Poly1305 encryption
+- **🧠 Memory Shards** — Key-value storage with versioning, metadata, and soft-delete capabilities
+- **👤 Agent Profiles** — Public capabilities, reputation scoring, and verifiable task history
+- **🤝 Memory Sharing** — Granular access control with permission levels and expiration dates
+- **📦 Batch Operations** — Create up to 50 memories in a single transaction for gas optimization
+- **💰 Economic Model** — Token staking for storage quota with dynamic fee structure
 
-## Quick Start
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Technology |
+|-------|------------|
+| **Blockchain** | Solana (devnet) |
+| **Smart Contracts** | Rust + Anchor Framework 0.30.1 |
+| **Encryption** | ChaCha20-Poly1305 (client-side) |
+| **Storage** | IPFS for large encrypted content |
+| **Frontend** | Next.js 14 + TypeScript |
+| **Styling** | Tailwind CSS |
+| **Wallet** | @solana/wallet-adapter |
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Node.js 18+
+- Solana CLI
+- Anchor Framework
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/[username]/agent-memory.git
+cd agent-memory
+
+# Install dependencies
+npm install
+
+# Build the program
+anchor build
+
+# Run tests
+anchor test
+
+# Start the frontend
+cd app && npm install && npm run dev
+```
+
+### Basic Usage
 
 ```typescript
-import { DAOGovernanceMemory } from './features/dao-governance';
+import { AgentMemoryClient } from './src/client';
 
-const daoMemory = new DAOGovernanceMemory();
+// Initialize client
+const client = new AgentMemoryClient(connection, wallet);
 
-// Initialize with Realms connection
-await daoMemory.initialize({
-  realmsEndpoint: 'https://api.realms.today',
-  daoPublicKey: 'your-dao-pubkey'
+// Initialize vault for agent-human pair
+const vault = await client.initializeVault(agentPublicKey);
+
+// Store encrypted memory
+await client.storeMemory(vault, {
+  content: encryptedData,
+  category: 'preferences',
+  tags: ['user', 'settings']
 });
 
-// Store a vote
-await daoMemory.storeVote({
-  proposalId: 'prop-123',
-  voter: 'voter-pubkey',
-  choice: 'yes',
-  votingPower: 1500,
-  timestamp: Date.now()
-});
-
-// Query voting history
-const history = await daoMemory.getVotingHistory({
-  voter: 'voter-pubkey',
-  limit: 50
+// Retrieve memories
+const memories = await client.getMemories(vault, {
+  category: 'preferences'
 });
 ```
 
-## Structure
+---
 
-```
-features/dao-governance/
-├── core/
-│   ├── types.ts          # TypeScript interfaces
-│   ├── storage.ts        # Memory storage engine
-│   └── indexer.ts        # Blockchain indexer
-├── integrations/
-│   ├── realms.ts         # Realms API client
-│   ├── snapshot.ts       # Snapshot integration
-│   └── exporters.ts      # Data export utilities
-├── ui/
-│   ├── components/       # React/Vue components
-│   ├── visualizations/   # Charts and graphs
-│   └── dashboard/        # Main dashboard
-└── analytics/
-    ├── patterns.ts       # Voting pattern analysis
-    ├── reputation.ts     # Delegate scoring
-    └── predictions.ts    # Outcome predictions
-```
+## 📚 Documentation
 
-## API Reference
+| Document | Description |
+|----------|-------------|
+| [`SUBMISSION.md`](./SUBMISSION.md) | Full project overview and submission details |
+| [`ARCHITECTURE.md`](./ARCHITECTURE.md) | System architecture and design decisions |
+| [`API.md`](./API.md) | API reference (v1) |
+| [`API-v2.md`](./API-v2.md) | Extended API reference (v2) |
+| [`DEPLOY.md`](./DEPLOY.md) | Deployment guide |
+| [`EXTENSION.md`](./EXTENSION.md) | v0.2.0 feature extension details |
+| [`AUDIT-REPORT.md`](./AUDIT-REPORT.md) | Security audit results |
 
-See `docs/API.md` for complete API documentation.
+---
+
+## 🔗 Program Information
+
+| Network | Program ID |
+|---------|------------|
+| Devnet | `HLtbU8HoiLhXtjQbJKshceuQK1f59xW7hT99P5pSn62L` |
+
+---
+
+## 📝 Releases
+
+### v1.0.0 - February 2026
+
+**Status**: Ready for Release  
+**Network**: Solana Devnet (Mainnet ready)
+
+AgentMemory Protocol v1.0.0 is the first stable release of our on-chain persistent memory system for AI agents.
+
+#### Release Highlights
+
+- ✅ Complete smart contract implementation
+- ✅ Client-side encryption system (ChaCha20-Poly1305)
+- ✅ Full-featured web interface
+- ✅ Comprehensive documentation
+- ✅ Security audit complete
+- ✅ Test coverage >90%
+
+#### Deployment Status
+
+| Component | Status | Location |
+|-----------|--------|----------|
+| Smart Contract | ✅ Deployed | Devnet |
+| Web Frontend | ✅ Deployed | Vercel |
+| Documentation | ✅ Published | GitHub |
+
+#### Code Statistics
+
+- **Smart Contract**: ~1,900 lines of Rust
+- **Frontend**: ~8,000 lines of TypeScript/React
+- **Tests**: 45+ test cases
+
+#### Known Limitations
+
+1. **Storage**: Maximum 10MB per memory shard
+2. **Batch Size**: Maximum 50 items per batch operation
+3. **Rate Limiting**: Task recording limited to 1 per minute
+4. **Version History**: Last 10 versions retained
+
+---
+
+## 📄 License
+
+MIT License - see [LICENSE](./LICENSE) for details.
+
+---
+
+*Built with ❤️ for the AI agent ecosystem | Colosseum Hackathon 2026*

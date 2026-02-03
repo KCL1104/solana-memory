@@ -11,10 +11,12 @@ Complete API reference for the AgentMemory smart contract protocol.
 
 1. [Core API (v1)](#core-api-v1)
 2. [Extended API (v2)](#extended-api-v2)
-3. [Account Types](#account-types)
-4. [PDA Seeds](#pda-seeds)
-5. [Events](#events)
-6. [Error Codes](#error-codes)
+3. [Query Operations](#query-operations)
+4. [Event Listening](#event-listening)
+5. [Account Types](#account-types)
+6. [PDA Seeds](#pda-seeds)
+7. [Events](#events)
+8. [Error Codes](#error-codes)
 
 ---
 
@@ -440,6 +442,166 @@ const tx = await program.methods
     protocolConfig: configPda,
   })
   .rpc();
+```
+
+---
+
+## Query Operations
+
+### Query Version History
+
+Fetch a memory account and access its version history:
+
+```typescript
+const memory = await program.account.memoryShard.fetch(memoryPda);
+
+console.log("Current version:", memory.version);
+console.log("Version history:", memory.versionHistory);
+
+// Each version record contains
+memory.versionHistory.forEach(record => {
+  console.log({
+    version: record.version,
+    contentHash: record.contentHash,
+    contentSize: record.contentSize,
+    metadata: record.metadata,
+    createdAt: record.createdAt,
+  });
+});
+```
+
+---
+
+### Query Group Information
+
+```typescript
+const group = await program.account.sharingGroup.fetch(groupPda);
+
+console.log({
+  name: group.name,
+  description: group.description,
+  creator: group.creator.toBase58(),
+  memberCount: group.members.length,
+  members: group.members.map(m => ({
+    address: m.member.toBase58(),
+    permission: m.permission, // 0, 1, 2, or 3
+    joinedAt: m.joinedAt,
+  })),
+});
+```
+
+---
+
+### Query Protocol Config
+
+```typescript
+const config = await program.account.protocolConfig.fetch(configPda);
+
+console.log({
+  admin: config.admin.toBase58(),
+  storageFeePerByte: config.storageFeePerByte.toString(),
+  minStakePerByte: config.minStakePerByte.toString(),
+  maxBatchSize: config.maxBatchSize,
+  maxMemorySize: config.maxMemorySize,
+  maxKeyLength: config.maxKeyLength,
+  rewardRate: config.rewardRate,
+  isPaused: config.isPaused,
+  createdAt: config.createdAt,
+  updatedAt: config.updatedAt,
+});
+```
+
+---
+
+### Query Access Permission
+
+```typescript
+const accessGrant = await program.account.accessGrant.fetch(accessGrantPda);
+
+console.log({
+  vault: accessGrant.vault.toBase58(),
+  grantee: accessGrant.grantee.toBase58(),
+  permissionLevel: accessGrant.permissionLevel, // 0, 1, 2, or 3
+  grantedAt: accessGrant.grantedAt,
+  expiresAt: accessGrant.expiresAt,
+  isActive: accessGrant.isActive,
+  revokedAt: accessGrant.revokedAt,
+});
+```
+
+---
+
+### Calculate Storage Fees
+
+Helper functions for calculating storage costs off-chain:
+
+```typescript
+// Storage fee calculation (off-chain)
+function calculateStorageFee(sizeInBytes: number): number {
+  // 0.001 SOL per KB
+  return (sizeInBytes * 0.001) / 1000;
+}
+
+// Required stake calculation
+function calculateRequiredStake(totalSize: number): number {
+  // 0.01 SOL per MB
+  return (totalSize * 0.01) / 1000000;
+}
+
+// Get current storage usage
+const vault = await program.account.memoryVault.fetch(vaultPda);
+const currentFee = calculateStorageFee(vault.totalMemorySize.toNumber());
+const requiredStake = calculateRequiredStake(vault.totalMemorySize.toNumber());
+```
+
+---
+
+## Event Listening
+
+### Set up Event Listeners
+
+```typescript
+// Set up event listeners
+program.addEventListener("memoryCreated", (event) => {
+  console.log("Memory created:", event);
+});
+
+program.addEventListener("memoryRolledBack", (event) => {
+  console.log("Memory rolled back:", {
+    fromVersion: event.fromVersion,
+    toVersion: event.toVersion,
+    newVersion: event.newVersion,
+  });
+});
+
+program.addEventListener("batchMemoryCreated", (event) => {
+  console.log("Batch created:", {
+    count: event.count,
+    totalSize: event.totalSize.toString(),
+    storageFee: event.storageFee.toString(),
+  });
+});
+
+program.addEventListener("sharingGroupCreated", (event) => {
+  console.log("Group created:", {
+    name: event.name,
+    creator: event.creator.toBase58(),
+  });
+});
+
+program.addEventListener("tokensStaked", (event) => {
+  console.log("Tokens staked:", {
+    amount: event.amount.toString(),
+    totalStaked: event.totalStaked.toString(),
+  });
+});
+
+program.addEventListener("protocolConfigUpdated", (event) => {
+  console.log("Config updated:", {
+    fields: event.updatedFields,
+    admin: event.admin.toBase58(),
+  });
+});
 ```
 
 ---

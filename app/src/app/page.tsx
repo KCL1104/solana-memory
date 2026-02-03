@@ -331,7 +331,7 @@ export default function Home() {
             
             {activeTab === 'memory' && (
               <div className="animate-fade-scale">
-                <MemoryBrowser expanded />
+                <MemoryBrowser />
               </div>
             )}
             

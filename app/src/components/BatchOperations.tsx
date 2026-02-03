@@ -13,7 +13,7 @@ import {
   X,
   Copy,
   Save,
-  SelectAll,
+  ListChecks,
   XSquare,
   Filter,
   Zap,
@@ -294,7 +294,7 @@ export function BatchOperations({ onClose }: BatchOperationsProps) {
                     : 'border-[#333] text-[#666] hover:border-[#555]'
                 }`}
               >
-                <SelectAll className="w-3 h-3 inline mr-1" />
+                <ListChecks className="w-3 h-3 inline mr-1" />
                 ALL ({memories.length})
               </button>
             </div>
@@ -309,7 +309,7 @@ export function BatchOperations({ onClose }: BatchOperationsProps) {
                     onClick={selectAll}
                     className="text-xs text-[#666] hover:text-[#00d4ff] font-mono flex items-center gap-1"
                   >
-                    <SelectAll className="w-3 h-3" />
+                    <ListChecks className="w-3 h-3" />
                     SELECT ALL
                   </button>
                   <button

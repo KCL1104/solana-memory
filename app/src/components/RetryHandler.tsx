@@ -183,7 +183,7 @@ export function useNetworkStatus() {
  * 錯誤重試組件
  */
 interface ErrorRetryProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   /** 錯誤時顯示的內容 */
   error?: Error | null;
   /** 是否正在加載 */

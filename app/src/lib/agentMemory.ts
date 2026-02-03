@@ -59,6 +59,7 @@ export interface MemoryShard {
   updatedAt: bigint;
   version: number;
   isDeleted: boolean;
+  isEncrypted: boolean;
   deletedAt?: bigint;
   versionHistory: VersionRecord[];
   bump: number;
@@ -97,7 +98,7 @@ export interface TransactionResult {
   signature: string;
   success: boolean;
   error?: string;
-  confirmationStatus?: 'processed' | 'confirmed' | 'finalized';
+  confirmationStatus?: web3.Commitment;
 }
 
 export interface RetryConfig {
@@ -733,6 +734,7 @@ export class AgentMemoryClient {
         key,
         contentHash,
         contentSize,
+        isEncrypted,
         metadata: {
           memoryType,
           importance,

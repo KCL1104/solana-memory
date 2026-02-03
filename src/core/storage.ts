@@ -102,7 +102,7 @@ export class MemoryStorage {
   }
 
   getProposalVotes(proposalId: string): Vote[] {
-    return this.getVotes({ proposal, sortBy: 'votingPower', sortOrder: 'desc' });
+    return this.getVotes({ proposal: proposalId, sortBy: 'votingPower', sortOrder: 'desc' });
   }
 
   // ============================================================================

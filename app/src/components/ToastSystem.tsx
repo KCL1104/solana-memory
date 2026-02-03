@@ -40,12 +40,15 @@ export function ToastContainer() {
     <div className="fixed top-4 right-4 z-[100] flex flex-col gap-2 max-w-sm w-full">
       {/* Transaction Status Notifications */}
       {transactions
-        .filter(tx => tx.status === 'pending')
+        .filter(tx => tx.status === 'pending' || tx.status === 'success' || tx.status === 'error')
         .slice(0, 2)
         .map((tx) => (
           <TransactionToast 
             key={tx.id} 
-            transaction={tx}
+            transaction={{
+              ...tx,
+              status: tx.status as 'pending' | 'success' | 'error'
+            }}
           />
         ))}
       
@@ -208,7 +211,7 @@ export function useNotify() {
   const { add: addTransaction } = useTransactionActions();
 
   const notify = useCallback((
-    type: 'success' | 'error' | 'warning' | 'info' | 'loading',
+    type: 'success' | 'error' | 'warning' | 'info',
     title: string,
     message: string,
     options?: {
@@ -242,7 +245,7 @@ export function useNotify() {
   }, [notify]);
 
   const loading = useCallback((title: string, message: string) => {
-    notify('loading', title, message, { duration: 0 }); // No auto-dismiss
+    notify('info', title, message, { duration: 0 }); // No auto-dismiss, use 'info' instead of 'loading'
   }, [notify]);
 
   // Transaction notification helper

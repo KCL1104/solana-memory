@@ -148,6 +148,59 @@ Security is critical for blockchain applications. Please:
 
 By contributing, you agree that your contributions will be licensed under the MIT License.
 
+## Security Best Practices
+
+When contributing to AgentMemory, please follow these Solana smart contract security best practices:
+
+### Account Validation
+- Use typed accounts (`Account<'info, T>`) for automatic ownership and discriminator validation
+- Use `has_one` constraints for ownership relationships
+- Validate PDA seeds and bumps explicitly
+- Never use `init_if_needed` (reinitialization risk)
+- Avoid `AccountInfo` without proper validation
+
+### PDA Best Practices
+- Use canonical, deterministic seeds
+- Include user-specific identifiers to prevent PDA sharing vulnerabilities
+- Store bumps in accounts and validate them
+
+### Error Handling
+- Use custom error codes with descriptive messages
+- Use `require!` macro for input validation
+- Use checked arithmetic (`checked_add`, `saturating_sub`) to prevent overflow
+- Fail closed - be overly restrictive rather than allow exploits
+
+### Event Emission
+- Emit events for all state changes
+- Include relevant metadata for indexing and audit trails
+
+### Anti-Patterns to Avoid
+- ❌ `init_if_needed` - Use separate create/update instructions
+- ❌ Unchecked arithmetic - Use checked operations
+- ❌ Missing signer checks - Always use `Signer<'info>`
+- ❌ Missing owner checks - Use typed accounts
+- ❌ Shared PDAs without user identifiers
+- ❌ Type cosplay - Use discriminators
+- ❌ Duplicate mutable accounts - Add explicit checks
+- ❌ Arbitrary CPI - Use `Program<'info, T>`
+- ❌ Missing events - Emit for all state changes
+- ❌ Unsafe account closure - Use `close` constraint
+
+### Security Checklist
+Before submitting PRs:
+- [ ] All accounts use typed validation
+- [ ] PDA seeds are canonical and unique
+- [ ] Signer requirements are explicit
+- [ ] No `init_if_needed` usage
+- [ ] All arithmetic uses checked operations
+- [ ] Events emitted for state changes
+- [ ] Comprehensive error handling
+- [ ] Tests cover both success and failure cases
+
+For more details, see the [Anchor Security Guide](https://www.anchor-lang.com/docs) and [Helius Solana Security Guide](https://www.helius.dev/blog/a-hitchhikers-guide-to-solana-program-security).
+
+---
+
 ## Questions?
 
 Feel free to open an issue for any questions about contributing!

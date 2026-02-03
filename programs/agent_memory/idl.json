@@ -5,7 +5,8 @@
     "name": "agent_memory",
     "version": "0.1.0",
     "description": "On-chain persistent memory protocol for AI agents on Solana",
-    "repository": "https://github.com/yourusername/agent-memory"
+    "repository": "https://github.com/yourusername/agent-memory",
+    "address": "HLtbU8HoiLhXtjQbJKshceuQK1f59xW7hT99P5pSn62L"
   },
   "instructions": [
     {

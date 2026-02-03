@@ -67,6 +67,7 @@ export async function storeMemory(
         }
       );
 
+      // @ts-ignore - Wallet interface may vary based on implementation
       const signature = await wallet.sendTransaction(transaction, connection);
       
       return {

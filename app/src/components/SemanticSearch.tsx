@@ -119,7 +119,7 @@ export function SemanticSearch() {
     });
     
     if (detectedTypes.length > 0) {
-      setFilters({ types: [...new Set(detectedTypes)] });
+      setFilters({ types: Array.from(new Set(detectedTypes)) });
       notify.success('Semantic Match', `Detected types: ${detectedTypes.join(', ')}`);
     }
     

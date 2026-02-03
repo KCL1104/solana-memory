@@ -27,7 +27,7 @@ import {
   RefreshCw,
   Upload,
 } from 'lucide-react';
-import { MemoryType, MemoryMetadata, TransactionResult } from '@/lib/agentMemory';
+import { MemoryType, MemoryMetadata, MemoryShard, TransactionResult } from '@/lib/agentMemory';
 
 const memoryTypeConfig: Record<MemoryType, { icon: React.ReactNode; label: string; color: string; border: string }> = {
   conversation: { 
@@ -93,7 +93,7 @@ export function MemoryBrowser() {
     importance: number;
     tags: string;
   }>({ key: '', content: '', type: 'conversation', importance: 50, tags: '' });
-  const [selectedMemory, setSelectedMemory] = useState<any | null>(null);
+  const [selectedMemory, setSelectedMemory] = useState<MemoryShard | null>(null);
   const [filterType, setFilterType] = useState<MemoryType | 'all'>('all');
   const [transactionResult, setTransactionResult] = useState<TransactionResult | null>(null);
   const [showStatusDialog, setShowStatusDialog] = useState(false);
@@ -509,13 +509,13 @@ export function MemoryBrowser() {
             <div className="p-6 border-b border-[#222]">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-4">
-                  <div className={`w-12 h-12 border ${memoryTypeConfig[selectedMemory.metadata?.memoryType || 'conversation'].border} ${memoryTypeConfig[selectedMemory.metadata?.memoryType || 'conversation'].color} flex items-center justify-center`}>
-                    {memoryTypeConfig[selectedMemory.metadata?.memoryType || 'conversation'].icon}
+                  <div className={`w-12 h-12 border ${memoryTypeConfig[(selectedMemory.metadata?.memoryType || 'conversation') as MemoryType].border} ${memoryTypeConfig[(selectedMemory.metadata?.memoryType || 'conversation') as MemoryType].color} flex items-center justify-center`}>
+                    {memoryTypeConfig[(selectedMemory.metadata?.memoryType || 'conversation') as MemoryType].icon}
                   </div>
                   <div>
                     <h4 className="text-lg font-display font-bold text-white tracking-wider">{selectedMemory.key}</h4>
                     <div className="flex items-center gap-3 text-xs text-[#666] font-mono mt-1">
-                      <span>{memoryTypeConfig[selectedMemory.metadata?.memoryType || 'conversation'].label}</span>
+                      <span>{memoryTypeConfig[(selectedMemory.metadata?.memoryType || 'conversation') as MemoryType].label}</span>
                       <span>•</span>
                       <span>{formatSize(selectedMemory.contentSize || 0)}</span>
                       <span>•</span>

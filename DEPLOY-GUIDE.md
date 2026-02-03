@@ -542,6 +542,78 @@ agent-memory/
 - **Devnet Faucet**: https://faucet.solana.com/
 - **Solana StackExchange**: https://solana.stackexchange.com/
 
+## Alternative Deployment Method
+
+### Using Deploy Script
+
+For automated deployment, use the provided script:
+
+```bash
+cd programs/agent_memory
+./deploy.sh
+```
+
+This script will:
+1. Check prerequisites
+2. Generate program keypair if needed
+3. Build the program
+4. Deploy to devnet
+5. Update configuration files
+6. Run tests
+
+---
+
+## Mainnet Deployment
+
+⚠️ **WARNING:** Mainnet deployment costs real SOL and is irreversible. Test thoroughly on devnet first!
+
+### 1. Switch to Mainnet
+
+```bash
+solana config set --url mainnet-beta
+solana config set --keypair ~/.config/solana/mainnet-wallet.json
+```
+
+### 2. Fund Wallet
+
+You'll need ~0.5 SOL for deployment. Transfer from an exchange or existing wallet.
+
+```bash
+# Check balance
+solana balance
+```
+
+### 3. Update Anchor.toml
+
+```toml
+[provider]
+cluster = "mainnet"
+wallet = "~/.config/solana/mainnet-wallet.json"
+```
+
+### 4. Build for Mainnet
+
+```bash
+anchor build -- --features mainnet
+```
+
+### 5. Deploy
+
+```bash
+anchor deploy --provider.cluster mainnet
+```
+
+### 6. Verify
+
+```bash
+solana account YOUR_PROGRAM_ID --url mainnet-beta
+```
+
+View on explorer:
+```
+https://explorer.solana.com/address/YOUR_PROGRAM_ID
+```
+
 ---
 
 *Happy Building on Solana! 🚀*

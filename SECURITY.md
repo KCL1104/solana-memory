@@ -30,12 +30,36 @@ AgentMemory uses **client-side encryption** with ChaCha20-Poly1305:
 - No unchecked account types
 - Rate limiting at client level
 
+## Current Audit Status
+
+**Latest Audit:** February 4, 2026  
+**Auditor:** Daily Learning Agent (automated + manual review)  
+**Overall Rating:** 8.5/10 ✅  
+**Full Report:** [SECURITY_AUDIT_2026-02-04.md](./docs/SECURITY_AUDIT_2026-02-04.md)  
+**Pre-Deployment Checklist:** [SECURITY_CHECKLIST.md](./docs/SECURITY_CHECKLIST.md)
+
+### Key Findings
+
+✅ **Strengths:**
+- Strong PDA validation throughout
+- Comprehensive access control
+- Robust event emission
+- Proper rent exemption
+
+⚠️ **Areas for Improvement:**
+- Access grant feature needs additional instruction handlers
+- Some arithmetic operations should use checked math
+- Protocol pause mechanism exists but not enforced
+
+**Recommendation:** Safe for hackathon submission. Address medium-severity items before major mainnet scaling.
+
 ## Known Limitations
 
 1. **Front-running**: Memory metadata is public (type, size, timestamps)
 2. **Key compromise**: If encryption keys leak, memory is exposed
 3. **Storage costs**: Solana rent for each memory shard
 4. **Max content size**: 10MB per shard (use IPFS for larger)
+5. **Access grants defined but not fully implemented** (see audit report)
 
 ## Audit Checklist
 

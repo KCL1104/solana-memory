@@ -7,7 +7,7 @@ import {
   Plus, Lock, Database, Shield, Activity, Key, 
   Zap, HardDrive, Server, CheckCircle, AlertTriangle,
   Cpu, Clock, ChevronRight, Wallet, Sparkles,
-  RefreshCw, TrendingUp, LockOpen
+  RefreshCw, TrendingUp, Unlock
 } from 'lucide-react';
 
 interface VaultMetrics {

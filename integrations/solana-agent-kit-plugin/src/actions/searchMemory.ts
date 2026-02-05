@@ -1,6 +1,7 @@
 import { Action } from 'solana-agent-kit';
-import { AgentMemory } from 'agentmemory';
+import { AgentMemory } from '../core/AgentMemory';
 import { MemorySearchQuerySchema } from '../types';
+import { z } from 'zod';
 
 /**
  * SEARCH_MEMORY Action
@@ -13,120 +14,65 @@ export const searchMemoryAction: Action = {
   name: "SEARCH_MEMORY",
   description: "Search agent memories using semantic search and filters. Supports text queries, tag filtering, importance filtering, and date ranges. Returns results sorted by relevance with match explanations.",
   
+  similes: ["find memory", "search memories", "lookup", "query memories"],
+  
   examples: [
-    {
-      input: {
-        query: "user preferences",
-        limit: 10
-      },
-      output: {
-        status: "success",
-        results: [
-          {
-            memory: {
-              id: "mem_abc123",
-              content: "User prefers dark mode interface",
-              importance: "medium",
-              tags: ["user_preference", "ui"],
-              category: "user_preference"
-            },
-            relevance: 0.95,
-            matchedTags: ["user_preference"]
-          }
-        ],
-        total: 1,
-        offset: 0
-      },
-      explanation: "Search for memories about user preferences"
-    },
-    {
-      input: {
-        tags: ["critical", "api_key"],
-        importance: "critical",
-        limit: 5
-      },
-      output: {
-        status: "success",
-        results: [
-          {
-            memory: {
-              id: "mem_secret456",
-              content: "Critical API key for external service",
-              importance: "critical",
-              tags: ["api_key", "secret"]
-            },
-            relevance: 1.0,
-            matchedTags: ["critical", "api_key"]
-          }
-        ],
-        total: 1
-      },
-      explanation: "Filter memories by tags and importance"
-    }
+    [
+      {
+        input: {
+          query: "user preferences",
+          limit: 10
+        },
+        output: {
+          status: "success",
+          results: [
+            {
+              memory: {
+                id: "mem_abc123",
+                content: "User prefers dark mode interface",
+                importance: "medium",
+                tags: ["user_preference", "ui"],
+                category: "user_preference"
+              },
+              relevance: 0.95,
+              matchedTags: ["user_preference"]
+            }
+          ],
+          total: 1,
+          offset: 0
+        },
+        explanation: "Search for memories about user preferences"
+      }
+    ],
+    [
+      {
+        input: {
+          tags: ["critical", "api_key"],
+          importance: "critical",
+          limit: 5
+        },
+        output: {
+          status: "success",
+          results: [
+            {
+              memory: {
+                id: "mem_secret456",
+                content: "Critical API key for external service",
+                importance: "critical",
+                tags: ["api_key", "secret"]
+              },
+              relevance: 1.0,
+              matchedTags: ["critical", "api_key"]
+            }
+          ],
+          total: 1
+        },
+        explanation: "Filter memories by tags and importance"
+      }
+    ]
   ],
 
-  parameters: {
-    type: "object",
-    properties: {
-      query: {
-        type: "string",
-        description: "Text query for semantic search (optional if using filters)"
-      },
-      tags: {
-        type: "array",
-        items: { type: "string" },
-        description: "Filter by tags - memories must have all specified tags"
-      },
-      importance: {
-        oneOf: [
-          { type: "string", enum: ["low", "medium", "high", "critical"] },
-          { type: "array", items: { type: "string", enum: ["low", "medium", "high", "critical"] } }
-        ],
-        description: "Filter by importance level(s)"
-      },
-      category: {
-        oneOf: [
-          { type: "string", enum: ["conversation", "task", "insight", "context", "user_preference", "system", "custom"] },
-          { type: "array", items: { type: "string", enum: ["conversation", "task", "insight", "context", "user_preference", "system", "custom"] } }
-        ],
-        description: "Filter by category or categories"
-      },
-      status: {
-        type: "string",
-        enum: ["active", "archived", "deleted"],
-        description: "Filter by memory status",
-        default: "active"
-      },
-      fromDate: {
-        type: "number",
-        description: "Start timestamp for date range filter (milliseconds)"
-      },
-      toDate: {
-        type: "number",
-        description: "End timestamp for date range filter (milliseconds)"
-      },
-      minRelevance: {
-        type: "number",
-        minimum: 0,
-        maximum: 1,
-        description: "Minimum relevance score threshold (0-1)",
-        default: 0.5
-      },
-      limit: {
-        type: "number",
-        minimum: 1,
-        maximum: 100,
-        description: "Maximum number of results",
-        default: 10
-      },
-      offset: {
-        type: "number",
-        minimum: 0,
-        description: "Offset for pagination",
-        default: 0
-      }
-    }
-  },
+  schema: MemorySearchQuerySchema,
 
   handler: async (agent, input) => {
     try {
@@ -134,10 +80,11 @@ export const searchMemoryAction: Action = {
       const searchQuery = MemorySearchQuerySchema.parse(input);
 
       // Initialize AgentMemory
+      const agentWithConfig = agent as typeof agent & { agentId?: string; network?: string; wallet?: any };
       const memory = new AgentMemory({ 
-        agentId: agent.agentId,
-        network: agent.network || 'devnet',
-        wallet: agent.wallet
+        agentId: agentWithConfig.agentId || 'default-agent',
+        network: (agentWithConfig.network as any) || 'devnet',
+        wallet: agentWithConfig.wallet
       });
 
       // Perform search
@@ -203,51 +150,43 @@ export const listRecentMemoriesAction: Action = {
   name: "LIST_RECENT_MEMORIES",
   description: "List the most recent memories, optionally filtered by category or tags.",
   
+  similes: ["show recent memories", "latest memories", "recent thoughts"],
+  
   examples: [
-    {
-      input: {
-        limit: 5,
-        category: "conversation"
-      },
-      output: {
-        status: "success",
-        memories: [
-          {
-            id: "mem_latest",
-            content: "Latest conversation",
-            createdAt: 1704067200000
-          }
-        ]
+    [
+      {
+        input: {
+          limit: 5,
+          category: "conversation"
+        },
+        output: {
+          status: "success",
+          memories: [
+            {
+              id: "mem_latest",
+              content: "Latest conversation",
+              createdAt: 1704067200000
+            }
+          ]
+        },
+        explanation: "List recent conversation memories"
       }
-    }
+    ]
   ],
 
-  parameters: {
-    type: "object",
-    properties: {
-      limit: {
-        type: "number",
-        minimum: 1,
-        maximum: 100,
-        default: 10
-      },
-      category: {
-        type: "string",
-        enum: ["conversation", "task", "insight", "context", "user_preference", "system", "custom"]
-      },
-      tags: {
-        type: "array",
-        items: { type: "string" }
-      }
-    }
-  },
+  schema: z.object({
+    limit: z.number().min(1).max(100).optional().describe("Maximum number of memories to return"),
+    category: z.enum(["conversation", "task", "insight", "context", "user_preference", "system", "custom"]).optional().describe("Filter by category"),
+    tags: z.array(z.string()).optional().describe("Filter by tags")
+  }),
 
   handler: async (agent, input) => {
     try {
+      const agentWithConfig = agent as typeof agent & { agentId?: string; network?: string; wallet?: any };
       const memory = new AgentMemory({ 
-        agentId: agent.agentId,
-        network: agent.network || 'devnet',
-        wallet: agent.wallet
+        agentId: agentWithConfig.agentId || 'default-agent',
+        network: (agentWithConfig.network as any) || 'devnet',
+        wallet: agentWithConfig.wallet
       });
 
       const memories = await memory.listRecent({

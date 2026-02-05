@@ -1,5 +1,5 @@
 import { Action } from 'solana-agent-kit';
-import { AgentMemory } from 'agentmemory';
+import { AgentMemory } from '../core/AgentMemory';
 import { z } from 'zod';
 
 /**
@@ -20,67 +20,59 @@ export const retrieveMemoryAction: Action = {
   name: "RETRIEVE_MEMORY",
   description: "Retrieve a memory by its unique ID. Returns the full memory content with metadata. Automatically decrypts encrypted memories if the decryption key is available.",
   
+  similes: ["get memory", "fetch memory", "recall", "remember"],
+  
   examples: [
-    {
-      input: {
-        memoryId: "mem_abc123xyz",
-        decrypt: true
-      },
-      output: {
-        status: "success",
-        memory: {
-          id: "mem_abc123xyz",
-          content: "User prefers dark mode interface",
-          importance: "medium",
-          tags: ["user_preference", "ui"],
-          category: "user_preference",
-          createdAt: 1704067200000,
-          updatedAt: 1704067200000,
-          encrypted: false,
-          version: 1
-        }
-      },
-      explanation: "Retrieve a stored memory by ID"
-    },
-    {
-      input: {
-        memoryId: "mem_secret456",
-        decrypt: true
-      },
-      output: {
-        status: "success",
-        memory: {
-          id: "mem_secret456",
-          content: "Critical API key for external service",
-          importance: "critical",
-          tags: ["api_key", "secret"],
-          category: "system",
-          createdAt: 1704067200000,
-          updatedAt: 1704067200000,
-          expiresAt: 1706659200000,
-          encrypted: true,
-          version: 1
-        }
-      },
-      explanation: "Retrieve and decrypt an encrypted memory"
-    }
+    [
+      {
+        input: {
+          memoryId: "mem_abc123xyz",
+          decrypt: true
+        },
+        output: {
+          status: "success",
+          memory: {
+            id: "mem_abc123xyz",
+            content: "User prefers dark mode interface",
+            importance: "medium",
+            tags: ["user_preference", "ui"],
+            category: "user_preference",
+            createdAt: 1704067200000,
+            updatedAt: 1704067200000,
+            encrypted: false,
+            version: 1
+          }
+        },
+        explanation: "Retrieve a stored memory by ID"
+      }
+    ],
+    [
+      {
+        input: {
+          memoryId: "mem_secret456",
+          decrypt: true
+        },
+        output: {
+          status: "success",
+          memory: {
+            id: "mem_secret456",
+            content: "Critical API key for external service",
+            importance: "critical",
+            tags: ["api_key", "secret"],
+            category: "system",
+            createdAt: 1704067200000,
+            updatedAt: 1704067200000,
+            expiresAt: 1706659200000,
+            encrypted: true,
+            version: 1
+          }
+        },
+        explanation: "Retrieve and decrypt an encrypted memory"
+      }
+    ]
   ],
 
-  parameters: {
-    type: "object",
-    properties: {
-      memoryId: {
-        type: "string",
-        description: "The unique ID of the memory to retrieve"
-      },
-      decrypt: {
-        type: "boolean",
-        description: "Whether to decrypt encrypted memories (default: true)",
-        default: true
-      }
-    },
-    required: ["memoryId"]
-  },
+  schema: RetrieveMemoryInputSchema,
 
   handler: async (agent, input) => {
     try {
@@ -88,10 +80,11 @@ export const retrieveMemoryAction: Action = {
       const { memoryId, decrypt } = RetrieveMemoryInputSchema.parse(input);
 
       // Initialize AgentMemory
+      const agentWithConfig = agent as typeof agent & { agentId?: string; network?: string; wallet?: any };
       const memory = new AgentMemory({ 
-        agentId: agent.agentId,
-        network: agent.network || 'devnet',
-        wallet: agent.wallet
+        agentId: agentWithConfig.agentId || 'default-agent',
+        network: (agentWithConfig.network as any) || 'devnet',
+        wallet: agentWithConfig.wallet
       });
 
       // Retrieve the memory
@@ -156,39 +149,37 @@ export const retrieveMemoryVersionsAction: Action = {
   name: "RETRIEVE_MEMORY_VERSIONS",
   description: "Retrieve version history for a memory. Returns all previous versions if version tracking is enabled.",
   
+  similes: ["get memory versions", "view memory history", "memory changelog"],
+  
   examples: [
-    {
-      input: {
-        memoryId: "mem_abc123xyz"
-      },
-      output: {
-        status: "success",
-        versions: [
-          {
-            version: 2,
-            content: "Updated content",
-            updatedAt: 1704153600000
-          },
-          {
-            version: 1,
-            content: "Original content",
-            updatedAt: 1704067200000
-          }
-        ]
+    [
+      {
+        input: {
+          memoryId: "mem_abc123xyz"
+        },
+        output: {
+          status: "success",
+          versions: [
+            {
+              version: 2,
+              content: "Updated content",
+              updatedAt: 1704153600000
+            },
+            {
+              version: 1,
+              content: "Original content",
+              updatedAt: 1704067200000
+            }
+          ]
+        },
+        explanation: "Retrieve version history for a memory"
       }
-    }
+    ]
   ],
 
-  parameters: {
-    type: "object",
-    properties: {
-      memoryId: {
-        type: "string",
-        description: "The memory ID to get version history for"
-      }
-    },
-    required: ["memoryId"]
-  },
+  schema: z.object({
+    memoryId: z.string().min(1).describe("The memory ID to get version history for")
+  }),
 
   handler: async (agent, input) => {
     try {
@@ -196,10 +187,11 @@ export const retrieveMemoryVersionsAction: Action = {
         memoryId: z.string().min(1)
       }).parse(input);
 
+      const agentWithConfig = agent as typeof agent & { agentId?: string; network?: string; wallet?: any };
       const memory = new AgentMemory({ 
-        agentId: agent.agentId,
-        network: agent.network || 'devnet',
-        wallet: agent.wallet
+        agentId: agentWithConfig.agentId || 'default-agent',
+        network: (agentWithConfig.network as any) || 'devnet',
+        wallet: agentWithConfig.wallet
       });
 
       const versions = await memory.getVersions(memoryId);

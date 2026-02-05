@@ -7,9 +7,11 @@ declare_id!("Mem1oWL98HnWm9aN4rXY37EL4XgFj5Avq2zA26Zf9yq");
 // Import modules
 pub mod error;
 pub mod instructions;
+pub mod identity_binding;
 
 pub use error::*;
 pub use instructions::*;
+pub use identity_binding::*;
 
 // ============================================================================
 // PROGRAM MODULE
@@ -155,6 +157,56 @@ pub mod agent_memory {
         new_admin: Pubkey,
     ) -> Result<()> {
         instructions::transfer_admin(ctx, new_admin)
+    }
+
+    // ============================================================================
+    // IDENTITY BINDING INSTRUCTIONS (ERC-8004)
+    // ============================================================================
+
+    /// Initializes an identity binding registry
+    pub fn initialize_registry(
+        ctx: Context<InitializeRegistry>,
+    ) -> Result<()> {
+        identity_binding::initialize_registry(ctx)
+    }
+
+    /// Binds a SAID Protocol identity to an agent memory
+    pub fn bind_identity(
+        ctx: Context<BindIdentityToMemory>,
+        agent_id: String,
+        signature: [u8; 64],
+    ) -> Result<()> {
+        identity_binding::bind_identity(ctx, agent_id, signature)
+    }
+
+    /// Verifies an identity-memory binding
+    pub fn verify_binding(
+        ctx: Context<VerifyBinding>,
+    ) -> Result<bool> {
+        identity_binding::verify_binding(ctx)
+    }
+
+    /// Revokes an identity-memory binding
+    pub fn revoke_binding(
+        ctx: Context<RevokeBinding>,
+    ) -> Result<()> {
+        identity_binding::revoke_binding(ctx)
+    }
+
+    /// Re-activates a revoked binding
+    pub fn reactivate_binding(
+        ctx: Context<ReactivateBinding>,
+        signature: [u8; 64],
+    ) -> Result<()> {
+        identity_binding::reactivate_binding(ctx, signature)
+    }
+
+    /// Rotates the binding signature
+    pub fn rotate_binding_signature(
+        ctx: Context<RotateBindingSignature>,
+        new_signature: [u8; 64],
+    ) -> Result<()> {
+        identity_binding::rotate_binding_signature(ctx, new_signature)
     }
 }
 

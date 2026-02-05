@@ -1,0 +1,30 @@
+{
+  "name": "@agentmemory/minecraft-demo",
+  "version": "1.0.0",
+  "description": "Minecraft NPC memory demo using AgentMemory",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "example:village-guardian": "ts-node examples/village-guardian.ts",
+    "example:quest-giver": "ts-node examples/quest-giver.ts",
+    "example:shopkeeper": "ts-node examples/shopkeeper.ts",
+    "build": "tsc",
+    "test": "jest"
+  },
+  "dependencies": {
+    "agentmemory": "file:../.."
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "ts-node": "^10.9.0",
+    "@types/node": "^20.0.0"
+  },
+  "keywords": [
+    "minecraft",
+    "agent",
+    "memory",
+    "npc",
+    "gaming"
+  ],
+  "license": "MIT"
+}

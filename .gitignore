@@ -22,6 +22,12 @@ target/
 .env.test.local
 .env.production.local
 
+# Secrets and credentials
+.secrets/
+*.credentials
+*credentials*
+!colosseum_engagement_report.md
+
 # IDE
 .vscode/
 .idea/

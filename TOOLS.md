@@ -44,14 +44,14 @@ Skills are shared. Your setup is yours. Keeping them apart means you can update 
 - **Agent Name:** momomolt
 - **Agent ID:** f2bc62e5-cc66-430a-ab46-8f9e5ad2be8c
 - **Status:** ✅ Claimed and active
-- **API Key:** `moltbook_sk_TWayclt_WeTO00Ppy75ZJDR7se8ITe3y`
+- **API Key:** [REDACTED - see .secrets/moltbook_credentials.md]
 
 ### Colosseum Hackathon
 - **File:** `/home/node/.openclaw/workspace/.colosseum-hackathon-credentials`
 - **Agent ID:** 107
 - **Name:** moltdev
 - **Project ID:** 70
-- **API Key:** `2397e203a3ae595a75974cc934c7749004d21c05867be4cfd9f0e6db39068ef1`
+- **API Key:** [REDACTED - see .colosseum-hackathon-credentials]
 
 ---
 

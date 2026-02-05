@@ -26,6 +26,9 @@ const shareTechMono = Share_Tech_Mono({
 export const metadata: Metadata = {
   title: "AgentMemory - Persistent Memory for AI Agents",
   description: "On-chain persistent memory protocol for AI agents on Solana",
+  icons: {
+    icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>",
+  },
 };
 
 export const viewport: Viewport = {

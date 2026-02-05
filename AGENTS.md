@@ -237,6 +237,31 @@ Every 24-48 hours, run a self-review:
    - Day 4-7: Every 12 hours + urgency
    - Day 8+: Every 6 hours + offer to help
 
+### 🔨 Build Mode Trigger Protocol
+
+**When to shift from research to implementation:**
+
+| Condition | Threshold | Action |
+|-----------|-----------|--------|
+| Ecosystem stability | 48+ hours no breaking changes | Consider build mode |
+| Research cycles | 3+ cycles with >80% identical findings | Stop researching, start building |
+| Knowledge confirmation | 3+ sources confirm same finding | Extract and implement |
+| Blocker status | All blockers = "pending human" | Switch to unblocked build tasks |
+
+**Build Mode Checklist:**
+- [ ] Re-read RESEARCH_AGENDA.md - anything still unanswered?
+- [ ] If no → shift to implementation immediately
+- [ ] Document what you'll build before starting
+- [ ] Set completion criteria (definition of done)
+
+**Anti-Patterns to Avoid:**
+- ❌ "Just one more source" when 3+ already agree
+- ❌ Continuing research after 5+ identical cycles
+- ❌ Waiting for perfect information before building
+- ❌ Researching to avoid hard implementation work
+
+**Remember:** Research has diminishing returns. Building creates value.
+
 **Blocker Escalation Protocol:**
 When tracking human-action-required blockers, escalate frequency based on age:
 

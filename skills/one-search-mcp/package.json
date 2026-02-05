@@ -1,0 +1,20 @@
+{
+  "name": "one-search-mcp-wrapper",
+  "version": "1.0.0",
+  "description": "OneSearch MCP CLI wrapper for OpenClaw integration",
+  "main": "scripts/one-search-mcp-wrapper.js",
+  "scripts": {
+    "test": "node scripts/one-search-mcp-wrapper.js --stdin"
+  },
+  "keywords": [
+    "mcp",
+    "openclaw",
+    "search",
+    "cli-backend"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "one-search-mcp": "^1.1.2"
+  }
+}

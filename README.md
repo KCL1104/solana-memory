@@ -87,6 +87,7 @@ const memories = await client.getMemories(vault, {
 | **💰 Economic Model** | Token staking for storage quota with dynamic fee structure |
 | **🔄 Version Control** | Automatic version history with rollback capabilities |
 | **📊 Access Logging** | Complete audit trail of memory access |
+| **🔗 Identity Binding** | SAID Protocol-inspired cryptographic identity binding with memory signing |
 
 ---
 
@@ -231,6 +232,7 @@ await client.revokeAccess(vault, granteeAgentKey);
 | **[GETTING-STARTED.md](./docs/GETTING-STARTED.md)** | 5-minute quick start guide | New users |
 | **[API.md](./API.md)** | Complete API reference | Developers |
 | **[ARCHITECTURE.md](./ARCHITECTURE.md)** | System architecture & design | Architects |
+| **[IDENTITY_BINDING.md](./docs/IDENTITY_BINDING.md)** | Identity binding & memory signing | Developers |
 | **[DEPLOY.md](./DEPLOY.md)** | Deployment guide | DevOps |
 | **[INTEGRATION.md](./docs/INTEGRATION.md)** | Integration guides | Developers |
 | **[BEST-PRACTICES.md](./BEST-PRACTICES.md)** | Security best practices | Developers |

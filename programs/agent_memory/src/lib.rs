@@ -4,9 +4,211 @@ use anchor_spl::token::{Token, TokenAccount};
 // Declare program ID - MAINNET
 declare_id!("Mem1oWL98HnWm9aN4rXY37EL4XgFj5Avq2zA26Zf9yq");
 
-// Import instruction handlers
+// Import modules
+pub mod error;
 pub mod instructions;
+pub mod identity_binding;
+
+pub use error::*;
 pub use instructions::*;
+pub use identity_binding::*;
+
+// ============================================================================
+// PROGRAM MODULE
+// ============================================================================
+
+#[program]
+pub mod agent_memory {
+    use super::*;
+
+    /// Initializes a new memory vault and agent profile
+    pub fn initialize_vault(
+        ctx: Context<InitializeVault>,
+        encryption_pubkey: [u8; 32],
+    ) -> Result<()> {
+        instructions::initialize_vault(ctx, encryption_pubkey)
+    }
+
+    /// Creates a new encrypted memory shard
+    pub fn create_memory(
+        ctx: Context<CreateMemory>,
+        key: String,
+        content_hash: [u8; 32],
+        content_size: u32,
+        metadata: MemoryMetadata,
+    ) -> Result<()> {
+        instructions::create_memory(ctx, key, content_hash, content_size, metadata)
+    }
+
+    /// Updates an existing memory shard
+    pub fn update_memory(
+        ctx: Context<UpdateMemory>,
+        content_hash: [u8; 32],
+        content_size: u32,
+        metadata: MemoryMetadata,
+    ) -> Result<()> {
+        instructions::update_memory(ctx, content_hash, content_size, metadata)
+    }
+
+    /// Soft deletes a memory shard
+    pub fn delete_memory(ctx: Context<DeleteMemory>) -> Result<()> {
+        instructions::delete_memory(ctx)
+    }
+
+    /// Permanently deletes a memory shard
+    pub fn permanent_delete_memory(ctx: Context<PermanentDeleteMemory>) -> Result<()> {
+        instructions::permanent_delete_memory(ctx)
+    }
+
+    /// Restores a soft-deleted memory shard
+    pub fn restore_memory(ctx: Context<RestoreMemory>) -> Result<()> {
+        instructions::restore_memory(ctx)
+    }
+
+    /// Rolls back memory to a previous version
+    pub fn rollback_memory(
+        ctx: Context<RollbackMemory>,
+        target_version: u32,
+    ) -> Result<()> {
+        instructions::rollback_memory(ctx, target_version)
+    }
+
+    /// Creates multiple memory shards in a single transaction
+    pub fn batch_create_memories(
+        ctx: Context<BatchCreateMemories>,
+        memories: Vec<BatchMemoryInput>,
+    ) -> Result<()> {
+        instructions::batch_create_memories(ctx, memories)
+    }
+
+    /// Deletes multiple memory shards in a single transaction
+    pub fn batch_delete_memories(
+        ctx: Context<BatchDeleteMemories>,
+        keys: Vec<String>,
+    ) -> Result<()> {
+        instructions::batch_delete_memories(ctx, keys)
+    }
+
+    /// Grants access to a vault
+    pub fn grant_access(
+        ctx: Context<GrantAccess>,
+        permission_level: PermissionLevel,
+        expires_at: Option<i64>,
+    ) -> Result<()> {
+        instructions::grant_access(ctx, permission_level, expires_at)
+    }
+
+    /// Revokes access to a vault
+    pub fn revoke_access(ctx: Context<RevokeAccess>) -> Result<()> {
+        instructions::revoke_access(ctx)
+    }
+
+    /// Updates agent profile
+    pub fn update_profile(
+        ctx: Context<UpdateProfile>,
+        name: Option<String>,
+        capabilities: Option<Vec<String>>,
+        is_public: Option<bool>,
+    ) -> Result<()> {
+        instructions::update_profile(ctx, name, capabilities, is_public)
+    }
+
+    /// Records task completion and updates reputation
+    pub fn record_task(ctx: Context<RecordTask>) -> Result<()> {
+        instructions::record_task(ctx)
+    }
+
+    /// Creates a new sharing group
+    pub fn create_sharing_group(
+        ctx: Context<CreateSharingGroup>,
+        name: String,
+        description: String,
+    ) -> Result<()> {
+        instructions::create_sharing_group(ctx, name, description)
+    }
+
+    /// Initializes protocol configuration
+    pub fn initialize_protocol_config(
+        ctx: Context<InitializeProtocolConfig>,
+        params: ProtocolConfigParams,
+    ) -> Result<()> {
+        instructions::initialize_protocol_config(ctx, params)
+    }
+
+    /// Updates protocol configuration
+    pub fn update_protocol_config(
+        ctx: Context<UpdateProtocolConfig>,
+        update: ProtocolConfigUpdate,
+    ) -> Result<()> {
+        instructions::update_protocol_config(ctx, update)
+    }
+
+    /// Toggles protocol pause state
+    pub fn set_protocol_pause(
+        ctx: Context<UpdateProtocolConfig>,
+        paused: bool,
+    ) -> Result<()> {
+        instructions::set_protocol_pause(ctx, paused)
+    }
+
+    /// Transfers admin rights
+    pub fn transfer_admin(
+        ctx: Context<TransferAdmin>,
+        new_admin: Pubkey,
+    ) -> Result<()> {
+        instructions::transfer_admin(ctx, new_admin)
+    }
+
+    // ============================================================================
+    // IDENTITY BINDING INSTRUCTIONS (ERC-8004)
+    // ============================================================================
+
+    /// Initializes an identity binding registry
+    pub fn initialize_registry(
+        ctx: Context<InitializeRegistry>,
+    ) -> Result<()> {
+        identity_binding::initialize_registry(ctx)
+    }
+
+    /// Binds a SAID Protocol identity to an agent memory
+    pub fn bind_identity(
+        ctx: Context<BindIdentityToMemory>,
+        agent_id: String,
+        signature: [u8; 64],
+    ) -> Result<()> {
+        identity_binding::bind_identity(ctx, agent_id, signature)
+    }
+
+    /// Verifies an identity-memory binding
+    pub fn verify_binding(
+        ctx: Context<VerifyBinding>,
+    ) -> Result<bool> {
+        identity_binding::verify_binding(ctx)
+    }
+
+    /// Revokes an identity-memory binding
+    pub fn revoke_binding(
+        ctx: Context<RevokeBinding>,
+    ) -> Result<()> {
+        identity_binding::revoke_binding(ctx)
+    }
+
+    /// Re-activates a revoked binding
+    pub fn reactivate_binding(
+        ctx: Context<ReactivateBinding>,
+        signature: [u8; 64],
+    ) -> Result<()> {
+        identity_binding::reactivate_binding(ctx, signature)
+    }
+
+    /// Rotates the binding signature
+    pub fn rotate_binding_signature(
+        ctx: Context<RotateBindingSignature>,
+        new_signature: [u8; 64],
+    ) -> Result<()> {
+        identity_binding::rotate_binding_signature(ctx, new_signature)
+    }
+}
 
 // ============================================================================
 // CONSTANTS
@@ -715,6 +917,13 @@ pub struct GrantAccess<'info> {
     )]
     pub access_grant: Account<'info, AccessGrant>,
     
+    /// CHECK: Protocol config for pause state
+    #[account(
+        seeds = [b"config"],
+        bump = protocol_config.bump,
+    )]
+    pub protocol_config: Account<'info, ProtocolConfig>,
+    
     pub system_program: Program<'info, System>,
 }
 
@@ -736,6 +945,13 @@ pub struct RevokeAccess<'info> {
         bump = access_grant.bump,
     )]
     pub access_grant: Account<'info, AccessGrant>,
+    
+    /// CHECK: Protocol config for pause state
+    #[account(
+        seeds = [b"config"],
+        bump = protocol_config.bump,
+    )]
+    pub protocol_config: Account<'info, ProtocolConfig>,
 }
 
 #[derive(Accounts)]
@@ -806,6 +1022,13 @@ pub struct BatchCreateMemories<'info> {
         has_one = owner @ AgentMemoryError::UnauthorizedOwner,
     )]
     pub vault: Account<'info, MemoryVault>,
+    
+    /// CHECK: Protocol config for pause state
+    #[account(
+        seeds = [b"config"],
+        bump = protocol_config.bump,
+    )]
+    pub protocol_config: Account<'info, ProtocolConfig>,
 }
 
 #[derive(Accounts)]
@@ -819,6 +1042,13 @@ pub struct BatchDeleteMemories<'info> {
         has_one = owner @ AgentMemoryError::UnauthorizedOwner,
     )]
     pub vault: Account<'info, MemoryVault>,
+    
+    /// CHECK: Protocol config for pause state
+    #[account(
+        seeds = [b"config"],
+        bump = protocol_config.bump,
+    )]
+    pub protocol_config: Account<'info, ProtocolConfig>,
 }
 
 #[derive(Accounts)]
@@ -1083,7 +1313,7 @@ pub enum AgentMemoryError {
     #[msg("Invalid batch size")]
     InvalidBatchSize,
     
-    #[msg("Protocol is paused")]
+    #[msg("Program is currently paused")]
     ProtocolPaused,
     
     #[msg("Unauthorized owner")]
@@ -1097,4 +1327,13 @@ pub enum AgentMemoryError {
     
     #[msg("Insufficient token balance")]
     InsufficientBalance,
+    
+    #[msg("Cannot grant access to owner")]
+    CannotGrantToOwner,
+    
+    #[msg("Invalid access permission")]
+    InvalidPermission,
+    
+    #[msg("Arithmetic overflow occurred")]
+    ArithmeticOverflow,
 }

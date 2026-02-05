@@ -8,6 +8,12 @@ module.exports = {
   ],
   theme: {
     extend: {
+      /* ── Screens ── */
+      screens: {
+        'xs': '475px',
+        '3xl': '1920px',
+      },
+
       /* ── Font Families ── */
       fontFamily: {
         display: ['Orbitron', 'sans-serif'],
@@ -72,12 +78,15 @@ module.exports = {
         'border-flow': 'borderFlow 4s ease infinite',
         'glitch': 'glitch 0.3s ease-in-out',
         'slide-up': 'slideInUp 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards',
+        'fade-in': 'fadeIn 0.5s ease-out forwards',
         'fade-scale': 'fadeInScale 0.4s cubic-bezier(0.23, 1, 0.32, 1) forwards',
         'neon-flicker': 'neonFlicker 3s infinite alternate',
         'spin-slow': 'spin 8s linear infinite',
         'bounce-subtle': 'bounceSubtle 2s ease-in-out infinite',
         'scan': 'scan 3s linear infinite',
         'pulse-ring': 'pulseRing 2s ease-out infinite',
+        'shimmer': 'shimmer 2s linear infinite',
+        'skeleton': 'skeleton 1.5s ease-in-out infinite',
         /* Stagger delays */
         'delay-100': '100ms',
         'delay-200': '200ms',
@@ -126,6 +135,10 @@ module.exports = {
             transform: 'translateY(0)',
           },
         },
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
         fadeInScale: {
           'from': {
             opacity: '0',
@@ -157,6 +170,14 @@ module.exports = {
         pulseRing: {
           '0%': { transform: 'scale(1)', opacity: '1' },
           '100%': { transform: 'scale(2)', opacity: '0' },
+        },
+        shimmer: {
+          '0%': { backgroundPosition: '-200% 0' },
+          '100%': { backgroundPosition: '200% 0' },
+        },
+        skeleton: {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.5' },
         },
       },
       

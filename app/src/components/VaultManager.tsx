@@ -1,11 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useWalletConnection } from './WalletButton';
 import { 
   Plus, Lock, Database, Shield, Activity, Key, 
   Zap, HardDrive, Server, CheckCircle, AlertTriangle,
-  Cpu, Clock, ChevronRight
+  Cpu, Clock, ChevronRight, Wallet, Sparkles,
+  RefreshCw, TrendingUp, Unlock
 } from 'lucide-react';
 
 interface VaultMetrics {
@@ -14,14 +16,60 @@ interface VaultMetrics {
   createdAt: Date | null;
   lastAccess: Date | null;
   encryptionKey: string;
-  syncStatus: 'synced' | 'syncing' | 'error';
+  syncStatus: 'synced' | 'syncing' | 'error' | 'offline';
   healthScore: number;
 }
+
+// Animated progress bar component
+const ProgressBar = ({ progress, color = 'cyan' }: { progress: number; color?: 'cyan' | 'orange' | 'green' | 'pink' }) => {
+  const colorClasses = {
+    cyan: 'from-neon-cyan to-neon-purple',
+    orange: 'from-neon-orange to-neon-yellow',
+    green: 'from-neon-green to-neon-cyan',
+    pink: 'from-neon-pink to-neon-purple',
+  };
+
+  return (
+    <div className="h-2 bg-[#1a1a25] rounded-full overflow-hidden">
+      <motion.div
+        initial={{ width: 0 }}
+        animate={{ width: `${progress}%` }}
+        transition={{ duration: 1, ease: "easeOut" }}
+        className={`h-full bg-gradient-to-r ${colorClasses[color]}`}
+      />
+    </div>
+  );
+};
+
+// Status indicator with pulse animation
+const StatusIndicator = ({ status }: { status: VaultMetrics['syncStatus'] }) => {
+  const config = {
+    synced: { color: 'text-neon-green', bg: 'bg-neon-green', label: 'ONLINE' },
+    syncing: { color: 'text-neon-yellow', bg: 'bg-neon-yellow', label: 'SYNCING' },
+    error: { color: 'text-neon-pink', bg: 'bg-neon-pink', label: 'ERROR' },
+    offline: { color: 'text-[#666]', bg: 'bg-[#666]', label: 'OFFLINE' },
+  };
+
+  const { color, bg, label } = config[status];
+
+  return (
+    <div className="flex items-center gap-2">
+      <div className="relative">
+        <div className={`w-2 h-2 rounded-full ${bg} ${status === 'synced' ? 'animate-pulse' : ''}`} />
+        {status === 'synced' && (
+          <div className={`absolute inset-0 rounded-full ${bg} animate-ping opacity-50`} />
+        )}
+      </div>
+      <span className={`text-xs font-mono ${color}`}>{label}</span>
+    </div>
+  );
+};
 
 export function VaultManager() {
   const { connected, publicKey } = useWalletConnection();
   const [hasVault, setHasVault] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+  const [creationStep, setCreationStep] = useState(0);
   const [mounted, setMounted] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [vaultInfo, setVaultInfo] = useState<VaultMetrics>({
@@ -30,18 +78,43 @@ export function VaultManager() {
     createdAt: null,
     lastAccess: null,
     encryptionKey: '',
-    syncStatus: 'synced',
+    syncStatus: 'offline',
     healthScore: 100,
   });
+
+  const creationSteps = [
+    'GENERATING_KEYS...',
+    'COMPILING_CONTRACT...',
+    'DEPLOYING_TO_CHAIN...',
+    'INITIALIZING_VAULT...',
+  ];
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
+  // Simulate step progression during vault creation
+  useEffect(() => {
+    if (isCreating) {
+      const interval = setInterval(() => {
+        setCreationStep(prev => {
+          if (prev >= creationSteps.length - 1) {
+            clearInterval(interval);
+            return prev;
+          }
+          return prev + 1;
+        });
+      }, 600);
+      return () => clearInterval(interval);
+    }
+  }, [isCreating]);
+
   if (!connected) return null;
 
   const handleCreateVault = async () => {
     setIsCreating(true);
+    setCreationStep(0);
+    
     // Simulate blockchain interaction with steps
     await new Promise(resolve => setTimeout(resolve, 2500));
     
@@ -56,6 +129,7 @@ export function VaultManager() {
       healthScore: 98,
     });
     setIsCreating(false);
+    setCreationStep(0);
   };
 
   const formatSize = (bytes: number) => {
@@ -72,18 +146,31 @@ export function VaultManager() {
 
   if (!hasVault) {
     return (
-      <div className="cyber-card p-6 animate-fade-scale">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="cyber-card p-4 sm:p-6"
+      >
         {/* Header */}
-        <div className="flex items-center gap-4 mb-6">
+        <div className="flex items-center gap-3 sm:gap-4 mb-6">
           <div className="relative">
-            <div className="w-12 h-12 border border-neon-orange flex items-center justify-center">
-              <Database className="w-6 h-6 text-neon-orange" />
-            </div>
+            <motion.div 
+              animate={{ 
+                boxShadow: isCreating 
+                  ? ['0 0 5px rgba(255, 61, 0, 0.5)', '0 0 20px rgba(255, 61, 0, 0.8)', '0 0 5px rgba(255, 61, 0, 0.5)']
+                  : '0 0 5px rgba(255, 61, 0, 0.5)'
+              }}
+              transition={{ duration: 1.5, repeat: isCreating ? Infinity : 0 }}
+              className="w-10 h-10 sm:w-12 sm:h-12 border border-neon-orange flex items-center justify-center"
+            >
+              <Database className="w-5 h-5 sm:w-6 sm:h-6 text-neon-orange" />
+            </motion.div>
             <div className="absolute -top-1 -left-1 w-2 h-2 border-l border-t border-neon-orange" />
             <div className="absolute -bottom-1 -right-1 w-2 h-2 border-r border-b border-neon-orange" />
           </div>
           <div>
-            <h3 className="text-lg font-display font-bold text-white tracking-wider">VAULT_STATUS</h3>
+            <h3 className="text-base sm:text-lg font-display font-bold text-white tracking-wider">VAULT_STATUS</h3>
             <div className="flex items-center gap-2 text-[10px] text-neon-pink font-mono mt-1">
               <AlertTriangle className="w-3 h-3" />
               NO_ACTIVE_INSTANCE
@@ -93,50 +180,47 @@ export function VaultManager() {
         
         {/* Info Cards */}
         <div className="space-y-3 mb-6">
-          <div className="flex items-start gap-3 p-3 bg-theme-bg-tertiary border border-theme-border-primary group hover:border-neon-orange/50 transition-colors">
-            <Activity className="w-4 h-4 text-neon-orange mt-0.5 group-hover:scale-110 transition-transform" />
-            <div>
-              <p className="text-sm text-theme-text-secondary">Deploy on-chain storage contract</p>
-              <div className="flex items-center gap-2 mt-1">
-                <span className="text-[10px] text-theme-text-muted font-mono">REQUIRES:</span>
-                <span className="text-[10px] text-neon-cyan font-mono">0.001 SOL</span>
+          {[
+            { icon: Activity, color: 'orange', title: 'Deploy on-chain storage contract', cost: '0.001 SOL' },
+            { icon: Key, color: 'cyan', title: 'Generate encryption keys', cost: 'AES-256-GCM' },
+            { icon: Shield, color: 'purple', title: 'Initialize security protocols', cost: 'MAXIMUM' },
+          ].map((item, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.1 * i }}
+              whileHover={{ x: 4 }}
+              className={`flex items-start gap-3 p-3 bg-theme-bg-tertiary border border-theme-border-primary group hover:border-neon-${item.color}/50 transition-colors`}
+            >
+              <item.icon className={`w-4 h-4 text-neon-${item.color} mt-0.5 group-hover:scale-110 transition-transform`} />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm text-theme-text-secondary">{item.title}</p>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-[10px] text-theme-text-muted font-mono">{i === 0 ? 'REQUIRES:' : i === 1 ? 'ALGORITHM:' : 'LEVEL:'}</span>
+                  <span className={`text-[10px] text-neon-${item.color} font-mono`}>{item.cost}</span>
+                </div>
               </div>
-            </div>
-          </div>
-          
-          <div className="flex items-start gap-3 p-3 bg-theme-bg-tertiary border border-theme-border-primary group hover:border-neon-cyan/50 transition-colors">
-            <Key className="w-4 h-4 text-neon-cyan mt-0.5 group-hover:scale-110 transition-transform" />
-            <div>
-              <p className="text-sm text-theme-text-secondary">Generate encryption keys</p>
-              <div className="flex items-center gap-2 mt-1">
-                <span className="text-[10px] text-theme-text-muted font-mono">ALGORITHM:</span>
-                <span className="text-[10px] text-neon-green font-mono">AES-256-GCM</span>
-              </div>
-            </div>
-          </div>
-          
-          <div className="flex items-start gap-3 p-3 bg-theme-bg-tertiary border border-theme-border-primary group hover:border-neon-purple/50 transition-colors">
-            <Shield className="w-4 h-4 text-neon-purple mt-0.5 group-hover:scale-110 transition-transform" />
-            <div>
-              <p className="text-sm text-theme-text-secondary">Initialize security protocols</p>
-              <div className="flex items-center gap-2 mt-1">
-                <span className="text-[10px] text-theme-text-muted font-mono">LEVEL:</span>
-                <span className="text-[10px] text-neon-purple font-mono">MAXIMUM</span>
-              </div>
-            </div>
-          </div>
+            </motion.div>
+          ))}
         </div>
 
         {/* Create Button */}
-        <button
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
           onClick={handleCreateVault}
           disabled={isCreating}
           className="w-full relative overflow-hidden py-4 border border-neon-orange text-neon-orange hover:bg-neon-orange hover:text-theme-bg-primary disabled:border-theme-border-primary disabled:text-theme-text-disabled disabled:hover:bg-transparent disabled:cursor-not-allowed font-display text-sm tracking-wider transition-all duration-300 group"
         >
           {isCreating ? (
             <div className="flex items-center justify-center gap-3">
-              <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-              <span className="animate-pulse">DEPLOYING_CONTRACT...</span>
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                className="w-4 h-4 border-2 border-current border-t-transparent rounded-full"
+              />
+              <span className="animate-pulse">{creationSteps[creationStep]}</span>
             </div>
           ) : (
             <div className="flex items-center justify-center gap-3">
@@ -147,40 +231,55 @@ export function VaultManager() {
           
           {/* Shine effect */}
           <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-700" />
-        </button>
+        </motion.button>
         
         {/* Progress indicator when creating */}
-        {isCreating && (
-          <div className="mt-4">
-            <div className="h-1 bg-theme-bg-tertiary rounded-full overflow-hidden">
-              <div className="h-full bg-gradient-to-r from-neon-orange to-neon-cyan animate-pulse" style={{ width: '60%' }} />
-            </div>
-            <div className="flex justify-between mt-2 text-[10px] text-theme-text-muted font-mono">
-              <span>COMPILING...</span>
-              <span>60%</span>
-            </div>
-          </div>
-        )}
-      </div>
+        <AnimatePresence>
+          {isCreating && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="mt-4 overflow-hidden"
+            >
+              <ProgressBar progress={((creationStep + 1) / creationSteps.length) * 100} color="orange" />
+              <div className="flex justify-between mt-2 text-[10px] text-theme-text-muted font-mono">
+                <span>STEP {creationStep + 1} OF {creationSteps.length}</span>
+                <span>{Math.round(((creationStep + 1) / creationSteps.length) * 100)}%</span>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
     );
   }
 
   return (
-    <div className="cyber-card p-6 animate-fade-scale">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="cyber-card p-4 sm:p-6"
+    >
       {/* Header */}
-      <div className="flex items-center gap-4 mb-6">
+      <div className="flex items-center gap-3 sm:gap-4 mb-6">
         <div className="relative">
-          <div className="w-12 h-12 border border-neon-green flex items-center justify-center">
-            <Lock className="w-6 h-6 text-neon-green" />
-          </div>
+          <motion.div 
+            animate={{ 
+              boxShadow: ['0 0 5px rgba(6, 255, 165, 0.5)', '0 0 15px rgba(6, 255, 165, 0.8)', '0 0 5px rgba(6, 255, 165, 0.5)']
+            }}
+            transition={{ duration: 2, repeat: Infinity }}
+            className="w-10 h-10 sm:w-12 sm:h-12 border border-neon-green flex items-center justify-center"
+          >
+            <Lock className="w-5 h-5 sm:w-6 sm:h-6 text-neon-green" />
+          </motion.div>
           <div className="absolute -top-1 -left-1 w-2 h-2 border-l border-t border-neon-green" />
           <div className="absolute -bottom-1 -right-1 w-2 h-2 border-r border-b border-neon-green" />
         </div>
-        <div>
-          <h3 className="text-lg font-display font-bold text-white tracking-wider">VAULT_ACTIVE</h3>
-          <div className="flex items-center gap-2 text-xs text-neon-green font-mono mt-1">
-            <span className="w-2 h-2 bg-neon-green rounded-full animate-pulse shadow-neon-green" />
-            <span>OPERATIONAL</span>
+        <div className="flex-1 min-w-0">
+          <h3 className="text-base sm:text-lg font-display font-bold text-white tracking-wider">VAULT_ACTIVE</h3>
+          <div className="flex items-center gap-2 text-xs mt-1">
+            <StatusIndicator status={vaultInfo.syncStatus} />
           </div>
         </div>
       </div>
@@ -213,7 +312,7 @@ export function VaultManager() {
           color="purple"
         />
         <MetricRow 
-          icon={<Activity className="w-4 h-4" />}
+          icon={<TrendingUp className="w-4 h-4" />}
           label="HEALTH_SCORE"
           value={`${vaultInfo.healthScore}%`}
           color="orange"
@@ -221,9 +320,21 @@ export function VaultManager() {
         />
       </div>
 
+      {/* Storage Usage Bar */}
+      <div className="mb-6">
+        <div className="flex justify-between text-xs font-mono text-theme-text-muted mb-2">
+          <span>STORAGE_USAGE</span>
+          <span>{formatSize(vaultInfo.totalSize)} / 10 MB</span>
+        </div>
+        <ProgressBar progress={(vaultInfo.totalSize / (10 * 1024 * 1024)) * 100} color="cyan" />
+      </div>
+
       {/* Encryption Key */}
       {vaultInfo.encryptionKey && (
-        <div className="p-3 bg-theme-bg-tertiary border border-theme-border-primary mb-4 group hover:border-neon-cyan/50 transition-colors">
+        <motion.div 
+          whileHover={{ borderColor: 'rgba(0, 240, 255, 0.3)' }}
+          className="p-3 bg-theme-bg-tertiary border border-theme-border-primary mb-4 group transition-colors"
+        >
           <div className="flex items-center gap-2 mb-2">
             <Key className="w-3 h-3 text-neon-cyan" />
             <span className="text-[10px] text-theme-text-muted font-mono tracking-wider">ENCRYPTION_KEY_HASH</span>
@@ -231,7 +342,7 @@ export function VaultManager() {
           <code className="text-[10px] text-theme-text-secondary font-mono block truncate group-hover:text-neon-cyan transition-colors">
             {vaultInfo.encryptionKey.slice(0, 32)}...
           </code>
-        </div>
+        </motion.div>
       )}
 
       {/* Timestamps */}
@@ -253,60 +364,83 @@ export function VaultManager() {
       </div>
 
       {/* Sync Status */}
-      <div className="mt-4 flex items-center gap-3 p-3 bg-neon-cyan/5 border border-neon-cyan/20">
+      <motion.div 
+        whileHover={{ scale: 1.01 }}
+        className="mt-4 flex items-center gap-3 p-3 bg-neon-cyan/5 border border-neon-cyan/20"
+      >
         <Server className="w-4 h-4 text-neon-cyan" />
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           <span className="text-[10px] text-neon-cyan font-mono block">NODE_SYNCED // DEVNET</span>
           <div className="flex items-center gap-2 mt-1">
             <div className="w-16 h-1 bg-theme-bg-tertiary rounded-full overflow-hidden">
-              <div className="h-full bg-neon-cyan animate-pulse" style={{ width: '100%' }} />
+              <motion.div 
+                animate={{ width: ['0%', '100%', '0%'] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="h-full bg-neon-cyan" 
+              />
             </div>
             <span className="text-[10px] text-theme-text-muted font-mono">LATENCY: 24ms</span>
           </div>
         </div>
-        <CheckCircle className="w-4 h-4 text-neon-green" />
-      </div>
+        <CheckCircle className="w-4 h-4 text-neon-green flex-shrink-0" />
+      </motion.div>
 
       {/* Quick Actions */}
       <div className="mt-4 grid grid-cols-2 gap-2">
-        <button className="py-2 px-3 border border-theme-border-primary text-theme-text-muted hover:border-neon-orange hover:text-neon-orange transition-all duration-300 text-xs font-mono tracking-wider flex items-center justify-center gap-2 group">
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          className="py-2 px-3 border border-theme-border-primary text-theme-text-muted hover:border-neon-orange hover:text-neon-orange transition-all duration-300 text-xs font-mono tracking-wider flex items-center justify-center gap-2 group"
+        >
           <Cpu className="w-3 h-3 group-hover:animate-spin" />
-          OPTIMIZE
-        </button>
-        <button 
+          <span className="hidden sm:inline">OPTIMIZE</span>
+        </motion.button>
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
           onClick={() => setShowDetails(!showDetails)}
           className="py-2 px-3 border border-theme-border-primary text-theme-text-muted hover:border-neon-cyan hover:text-neon-cyan transition-all duration-300 text-xs font-mono tracking-wider flex items-center justify-center gap-2 group"
         >
-          DETAILS
+          <span className="hidden sm:inline">DETAILS</span>
           <ChevronRight className={`w-3 h-3 transition-transform duration-300 ${showDetails ? 'rotate-90' : ''}`} />
-        </button>
+        </motion.button>
       </div>
 
       {/* Expanded Details */}
-      {showDetails && (
-        <div className="mt-4 p-4 bg-theme-bg-tertiary border border-theme-border-primary animate-fade-scale">
-          <h4 className="text-xs font-mono text-theme-text-muted mb-3 tracking-wider">VAULT_DETAILS</h4>
-          <div className="space-y-2 text-xs font-mono">
-            <div className="flex justify-between">
-              <span className="text-theme-text-muted">PROGRAM_ID:</span>
-              <span className="text-neon-cyan">MemV2x...9A7B</span>
+      <AnimatePresence>
+        {showDetails && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="overflow-hidden"
+          >
+            <div className="mt-4 p-4 bg-theme-bg-tertiary border border-theme-border-primary">
+              <h4 className="text-xs font-mono text-theme-text-muted mb-3 tracking-wider">VAULT_DETAILS</h4>
+              <div className="space-y-2 text-xs font-mono">
+                <div className="flex justify-between">
+                  <span className="text-theme-text-muted">PROGRAM_ID:</span>
+                  <span className="text-neon-cyan">MemV2x...9A7B</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-theme-text-muted">AUTHORITY:</span>
+                  <span className="text-neon-orange truncate max-w-24">{publicKey?.toBase58().slice(0, 8)}...</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-theme-text-muted">RENT_EXEMPT:</span>
+                  <span className="text-neon-green">0.002 SOL</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-theme-text-muted">DATA_SIZE:</span>
+                  <span className="text-theme-text-secondary">1.2 MB</span>
+                </div>
+              </div>
             </div>
-            <div className="flex justify-between">
-              <span className="text-theme-text-muted">AUTHORITY:</span>
-              <span className="text-neon-orange truncate max-w-24">{publicKey?.toBase58().slice(0, 8)}...</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-theme-text-muted">RENT_EXEMPT:</span>
-              <span className="text-neon-green">0.002 SOL</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-theme-text-muted">DATA_SIZE:</span>
-              <span className="text-theme-text-secondary">1.2 MB</span>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 }
 
@@ -337,15 +471,25 @@ function MetricRow({
     purple: 'bg-neon-purple/5',
   };
 
+  const glowClasses = {
+    orange: 'text-glow-orange',
+    cyan: 'text-glow-cyan',
+    green: 'text-glow-green',
+    purple: 'text-glow-purple',
+  };
+
   return (
-    <div className={`flex items-center justify-between py-3 px-3 border-b border-theme-border-primary ${colorClasses[color]} ${bgClasses[color]} transition-all duration-300 group`}>
+    <motion.div 
+      whileHover={{ x: 4 }}
+      className={`flex items-center justify-between py-3 px-3 border-b border-theme-border-primary ${colorClasses[color]} ${bgClasses[color]} transition-all duration-300 group cursor-default`}
+    >
       <span className="flex items-center gap-2 text-sm text-theme-text-secondary group-hover:text-white transition-colors">
         {icon}
         {label}
       </span>
-      <span className={`font-mono font-bold ${highlight ? 'text-glow-' + color : ''}`}>
+      <span className={`font-mono font-bold ${highlight ? glowClasses[color] : ''}`}>
         {value}
       </span>
-    </div>
+    </motion.div>
   );
 }

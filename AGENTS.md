@@ -248,17 +248,33 @@ Every 24-48 hours, run a self-review:
 | Knowledge confirmation | 3+ sources confirm same finding | Extract and implement |
 | Blocker status | All blockers = "pending human" | Switch to unblocked build tasks |
 
+**🚨 HARD STOP PROTOCOL (Enforced):**
+
+| Cycle Count | Status | Action Required |
+|-------------|--------|-----------------|
+| 5+ identical | ⚠️ WARNING | Halt new ecosystem research |
+| 10+ identical | 🛑 SOFT STOP | Halt ALL research, focus on builds |
+| 15+ identical | ⛔ HARD STOP | Research BLOCKED until build milestone complete |
+
 **Build Mode Checklist:**
 - [ ] Re-read RESEARCH_AGENDA.md - anything still unanswered?
 - [ ] If no → shift to implementation immediately
 - [ ] Document what you'll build before starting
 - [ ] Set completion criteria (definition of done)
 
+**Build Momentum Requirements (New):**
+- Each research cycle must PAIR with 1 build milestone
+- Research logs must include: `Build progress: [X/Y milestones completed]`
+- Micro-milestones create visible progress: Architecture sketch → Skeleton → Tests → Docs
+
 **Anti-Patterns to Avoid:**
 - ❌ "Just one more source" when 3+ already agree
 - ❌ Continuing research after 5+ identical cycles
 - ❌ Waiting for perfect information before building
 - ❌ Researching to avoid hard implementation work
+- ❌ **Research as productive procrastination** — feeling busy but not delivering value
+
+**Psychological Trap:** Research provides immediate gratification (daily logs, visible "productivity"). Builds feel ambiguous until complete. **Solution:** Define MICRO-MILESTONES for builds to create completion momentum.
 
 **Remember:** Research has diminishing returns. Building creates value.
 
@@ -295,6 +311,29 @@ Track blocker ages in `memory/heartbeat-state.json`:
 - `MEMORY.md` - Self-improvement learnings section
 
 The goal: Be helpful without being annoying. Check in a few times a day, do useful background work, but respect quiet time.
+
+---
+
+### 📝 Build Task Specification Template
+
+When shifting to build mode, define tasks with clear completion criteria:
+
+```markdown
+### Build Task: [Name]
+**Objective:** One-sentence description of what this task achieves
+
+**Definition of Done:**
+- [ ] Specific deliverable 1 (e.g., "Architecture document complete")
+- [ ] Specific deliverable 2 (e.g., "Code skeleton implemented")
+- [ ] Specific deliverable 3 (e.g., "Tests passing")
+- [ ] Specific deliverable 4 (e.g., "Documentation drafted")
+
+**Estimated Time:** X hours
+**Dependencies:** List any blockers or prerequisites
+**Priority:** P0 (critical) / P1 (important) / P2 (nice to have)
+```
+
+**Why this matters:** Build tasks feel less concrete than research. This template makes them actionable and ensures you know when you're done.
 
 ## Make It Yours
 

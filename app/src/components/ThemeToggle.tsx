@@ -2,9 +2,30 @@
 
 import { useTheme } from '@/components/ThemeProvider';
 import { Sun, Moon } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 export function ThemeToggle() {
   const { theme, toggleTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Show placeholder during SSR to avoid hydration mismatch
+  if (!mounted) {
+    return (
+      <button
+        className="relative w-10 h-10 border border-theme-border-primary transition-all duration-300 overflow-hidden"
+        aria-label="Loading theme"
+        disabled
+      >
+        <div className="w-full h-full flex items-center justify-center">
+          <Moon className="w-5 h-5 text-neon-cyan opacity-50" />
+        </div>
+      </button>
+    );
+  }
 
   return (
     <button

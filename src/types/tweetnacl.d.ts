@@ -8,6 +8,11 @@ declare module 'tweetnacl' {
     secretKey: Uint8Array;
   }
 
+  export interface SignKeyPair {
+    publicKey: Uint8Array;
+    secretKey: Uint8Array;
+  }
+
   export interface BoxKeyPair {
     publicKey: Uint8Array;
     secretKey: Uint8Array;

@@ -1,7 +1,7 @@
 import { MemoryStorage } from '../../src/core/storage';
 import { IdentityBinding } from '../../src/identity/binding';
 import { Connection, clusterApiUrl } from '@solana/web3.js';
-import { Proposal, Vote, Delegation } from '../../src/core/types';
+import { Proposal, Vote, Delegation, ProposalCategory } from '../../src/core/types';
 
 /**
  * DAO Governance Scenario
@@ -106,7 +106,7 @@ describe('E2E: DAO Governance Scenario', () => {
         metadata: {
           memoryType: 'task',
           importance: 90,
-          tags: ['treasury', 'allocation', 'q1-2026']
+          tags: [1, 2, 3]
         },
         vault: 'dao-vault'
       });
@@ -288,7 +288,7 @@ describe('E2E: DAO Governance Scenario', () => {
   describe('Governance Analytics', () => {
     beforeEach(() => {
       // Create historical proposals
-      const categories = ['treasury', 'governance', 'parameter', 'upgrade'];
+      const categories: ProposalCategory[] = ['treasury', 'governance', 'parameter', 'upgrade'];
       const states = ['succeeded', 'defeated', 'executed'];
 
       for (let i = 0; i < 30; i++) {
@@ -381,7 +381,7 @@ describe('E2E: DAO Governance Scenario', () => {
           metadata: {
             memoryType: 'task',
             importance: 80,
-            tags: ['governance', 'proposal']
+            tags: [4, 5]
           },
           vault: 'dao-vault'
         });

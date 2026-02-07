@@ -1,102 +1,336 @@
-import { AgentMemoryPlugin } from "../src/index";
-import { SolanaAgentKit } from "@solana-agent-kit/core";
+/**
+ * Tests for AgentMemory Solana Agent Kit Plugin
+ */
 
-// Mock Solana Agent Kit for testing
-jest.mock("@solana-agent-kit/core");
+import { AgentMemoryPlugin } from "../src/index";
+
+// Mock AgentMemory SDK
+jest.mock("@moltdev-labs/agent-memory-sdk", () => ({
+  AgentMemoryClient: jest.fn().mockImplementation(() => ({
+    listVaults: jest.fn().mockResolvedValue({ data: [] }),
+    createVault: jest.fn().mockResolvedValue({
+      id: "vault_test123",
+      name: "test-vault",
+      owner: "test_owner",
+    }),
+    getVault: jest.fn().mockResolvedValue({
+      id: "vault_test123",
+      name: "test-vault",
+      metadata: {},
+    }),
+    storeMemory: jest.fn().mockResolvedValue({
+      id: "mem_abc123",
+      key: "test_key",
+      version: 1,
+    }),
+    getMemory: jest.fn().mockResolvedValue({
+      id: "mem_abc123",
+      key: "test_key",
+      data: { content: "test content" },
+      metadata: { tags: ["test"] },
+      version: 1,
+    }),
+    updateMemory: jest.fn().mockResolvedValue({
+      id: "mem_abc123",
+      version: 2,
+    }),
+    deleteMemory: jest.fn().mockResolvedValue(undefined),
+    searchMemories: jest.fn().mockResolvedValue([
+      {
+        memory: {
+          id: "mem_abc123",
+          key: "test_key",
+          data: { content: "test content", importance: 0.8 },
+          metadata: { tags: ["test"] },
+          createdAt: new Date().toISOString(),
+          version: 1,
+        },
+        score: 0.95,
+      },
+    ]),
+    listMemories: jest.fn().mockResolvedValue({
+      data: [
+        {
+          id: "mem_abc123",
+          key: "test_key",
+          data: { content: "old content", importance: 0.3 },
+          metadata: { labels: { tier: "warm" } },
+          createdAt: new Date(Date.now() - 86400000).toISOString(),
+        },
+      ],
+    }),
+    grantAccess: jest.fn().mockResolvedValue({
+      userId: "recipient_pubkey",
+      permission: "read",
+    }),
+    health: jest.fn().mockResolvedValue({
+      status: "healthy",
+      version: "1.0.0",
+    }),
+  })),
+}));
 
 describe("AgentMemoryPlugin", () => {
   let plugin: AgentMemoryPlugin;
-  let mockAgentKit: jest.Mocked<SolanaAgentKit>;
+  let mockAgentKit: any;
 
   beforeEach(() => {
     mockAgentKit = {
-      connection: { rpcEndpoint: "https://api.devnet.solana.com" } as any,
+      connection: {
+        getBalance: jest.fn().mockResolvedValue(1000000000),
+      },
+      wallet: {
+        publicKey: {
+          toBase58: () => "test_agent_pubkey",
+        },
+      },
       registerTool: jest.fn(),
-      wallet: { publicKey: { toString: () => "mockPublicKey" } },
-    } as any;
+    };
 
     plugin = new AgentMemoryPlugin({
-      programId: "Mem1oWL98HnWm9aN4rXY37EL4XgFj5Avq2zA26Zf9yq",
-      encryptionKey: "test-key-123",
+      apiUrl: "https://test-api.agentmemory.io",
+      apiKey: "test_key",
+      debug: false,
     });
   });
 
   describe("initialization", () => {
-    it("should initialize with correct config", async () => {
-      await plugin.initialize(mockAgentKit);
-      expect(mockAgentKit.registerTool).toHaveBeenCalledTimes(5);
+    it("should initialize with default config", () => {
+      const defaultPlugin = new AgentMemoryPlugin();
+      expect(defaultPlugin).toBeDefined();
+      expect(defaultPlugin.name).toBe("agentmemory");
+      expect(defaultPlugin.version).toBe("0.1.0");
     });
 
-    it("should register all memory tools", async () => {
+    it("should initialize with custom config", () => {
+      const customPlugin = new AgentMemoryPlugin({
+        apiUrl: "https://custom.api.com",
+        defaultTTL: 86400,
+        allowSharing: true,
+      });
+      expect(customPlugin).toBeDefined();
+    });
+
+    it("should register tools on initialization", async () => {
       await plugin.initialize(mockAgentKit);
-      
-      const registeredTools = mockAgentKit.registerTool.mock.calls.map(call => call[0].name);
-      expect(registeredTools).toContain("memory_store");
-      expect(registeredTools).toContain("memory_retrieve");
-      expect(registeredTools).toContain("memory_update");
-      expect(registeredTools).toContain("memory_compress");
-      expect(registeredTools).toContain("identity_export");
+      expect(mockAgentKit.registerTool).toHaveBeenCalledTimes(8);
     });
   });
 
-  describe("memory operations", () => {
+  describe("memory storage", () => {
     beforeEach(async () => {
       await plugin.initialize(mockAgentKit);
     });
 
-    it("should generate unique memory IDs", () => {
-      const id1 = (plugin as any).generateMemoryId("test content 1");
-      const id2 = (plugin as any).generateMemoryId("test content 2");
-      
-      expect(id1).toMatch(/^mem_[a-f0-9]+_\d+$/);
-      expect(id1).not.toBe(id2);
+    it("should store a memory", async () => {
+      const result = await plugin.store({
+        content: "Test memory content",
+        tags: ["test"],
+        importance: 0.8,
+      });
+
+      expect(result.memoryId).toBeDefined();
+      expect(result.status).toBe("stored");
+      expect(result.tier).toBe("hot"); // High importance = hot tier
     });
 
-    // TODO: Add tests for actual on-chain operations once implemented
-    // These will require a local validator or devnet integration
+    it("should generate key if not provided", async () => {
+      const result = await plugin.store({
+        content: "Test content",
+      });
+
+      expect(result.memoryId).toBeDefined();
+    });
+
+    it("should use correct tier based on importance", async () => {
+      const hotResult = await plugin.store({
+        content: "Hot memory",
+        importance: 0.9,
+      });
+      expect(hotResult.tier).toBe("hot");
+
+      const warmResult = await plugin.store({
+        content: "Warm memory",
+        importance: 0.5,
+      });
+      expect(warmResult.tier).toBe("warm");
+
+      const coldResult = await plugin.store({
+        content: "Cold memory",
+        importance: 0.2,
+      });
+      expect(coldResult.tier).toBe("cold");
+    });
   });
 
-  describe("configuration", () => {
-    it("should use default config values", () => {
-      const defaultPlugin = new AgentMemoryPlugin({
-        programId: "TestProgramId",
-      });
-      
-      // Access private config for testing
-      const config = (defaultPlugin as any).config;
-      expect(config.defaultTTL).toBe(86400 * 30);
-      expect(config.allowSharing).toBe(false);
-      expect(config.tierConfig.hot.maxSize).toBe(100);
+  describe("memory retrieval", () => {
+    beforeEach(async () => {
+      await plugin.initialize(mockAgentKit);
     });
 
-    it("should accept custom config values", () => {
-      const customPlugin = new AgentMemoryPlugin({
-        programId: "TestProgramId",
-        defaultTTL: 86400,
-        allowSharing: true,
+    it("should retrieve memories by query", async () => {
+      const result = await plugin.retrieve({
+        query: "test query",
+        limit: 5,
       });
-      
-      const config = (customPlugin as any).config;
-      expect(config.defaultTTL).toBe(86400);
-      expect(config.allowSharing).toBe(true);
+
+      expect(result.memories).toBeDefined();
+      expect(Array.isArray(result.memories)).toBe(true);
+      expect(result.count).toBeGreaterThanOrEqual(0);
+    });
+
+    it("should filter by tags", async () => {
+      const result = await plugin.retrieve({
+        query: "test",
+        tags: ["important"],
+      });
+
+      expect(result.memories).toBeDefined();
+    });
+
+    it("should support semantic search", async () => {
+      const result = await plugin.retrieve({
+        query: "semantic query",
+        semantic: true,
+      });
+
+      expect(result.memories).toBeDefined();
+    });
+  });
+
+  describe("memory updates", () => {
+    beforeEach(async () => {
+      await plugin.initialize(mockAgentKit);
+    });
+
+    it("should update a memory", async () => {
+      const result = await plugin.update({
+        memoryId: "mem_abc123",
+        content: "Updated content",
+        importance: 0.9,
+      });
+
+      expect(result.memoryId).toBe("mem_abc123");
+      expect(result.status).toBe("updated");
+      expect(result.version).toBe(2);
+    });
+
+    it("should support append mode", async () => {
+      const result = await plugin.update({
+        memoryId: "mem_abc123",
+        content: "Additional content",
+        append: true,
+      });
+
+      expect(result.status).toBe("updated");
+    });
+  });
+
+  describe("memory deletion", () => {
+    beforeEach(async () => {
+      await plugin.initialize(mockAgentKit);
+    });
+
+    it("should soft delete a memory", async () => {
+      const result = await plugin.delete("mem_abc123");
+
+      expect(result.memoryId).toBe("mem_abc123");
+      expect(result.status).toBe("deleted");
+    });
+
+    it("should permanently delete a memory", async () => {
+      const result = await plugin.delete("mem_abc123", true);
+
+      expect(result.memoryId).toBe("mem_abc123");
+      expect(result.status).toBe("permanently_deleted");
+    });
+  });
+
+  describe("memory compression", () => {
+    beforeEach(async () => {
+      await plugin.initialize(mockAgentKit);
+    });
+
+    it("should compress memories", async () => {
+      const result = await plugin.handleCompress({
+        strategy: "summarize",
+        olderThan: 86400,
+      });
+
+      expect(typeof result.compressed).toBe("number");
+      expect(typeof result.saved).toBe("number");
+      expect(result.strategy).toBe("summarize");
+    });
+  });
+
+  describe("encryption", () => {
+    it("should detect when encryption is disabled", () => {
+      expect(plugin.isEncryptionEnabled()).toBe(false);
+    });
+
+    it("should initialize encryption with valid key", () => {
+      const encryptedPlugin = new AgentMemoryPlugin({
+        encryptionKey: "7x8vJ2kLmN3pQr5sTu6wXy9zAbCdEfGhIjKlMnOpQrSt", // Valid base58 32-byte key
+        debug: false,
+      });
+
+      expect(encryptedPlugin.isEncryptionEnabled()).toBe(true);
+      expect(encryptedPlugin.getEncryptionPublicKey()).toBeDefined();
+    });
+
+    it("should throw on invalid encryption key", () => {
+      expect(() => {
+        new AgentMemoryPlugin({
+          encryptionKey: "invalid_key",
+        });
+      }).toThrow();
+    });
+  });
+
+  describe("health check", () => {
+    beforeEach(async () => {
+      await plugin.initialize(mockAgentKit);
+    });
+
+    it("should return health status", async () => {
+      const health = await plugin.health();
+
+      expect(health.status).toBe("healthy");
+      expect(health.vaultId).toBeDefined();
+      expect(health.encrypted).toBe(false);
+    });
+  });
+
+  describe("direct API access", () => {
+    beforeEach(async () => {
+      await plugin.initialize(mockAgentKit);
+    });
+
+    it("should expose SDK client", () => {
+      const client = plugin.getClient();
+      expect(client).toBeDefined();
+    });
+
+    it("should expose vault ID", () => {
+      const vaultId = plugin.getVaultId();
+      expect(vaultId).toBeDefined();
     });
   });
 });
 
-// Integration tests (requires Solana connection)
-describe("AgentMemoryPlugin Integration", () => {
-  // These tests require a running Solana validator or devnet connection
-  // Run with: npm run test:integration
-  
-  it.skip("should store and retrieve memory on devnet", async () => {
-    // Implementation pending
-  });
-
-  it.skip("should encrypt and decrypt sensitive memories", async () => {
-    // Implementation pending
-  });
-
-  it.skip("should compress old memories to save rent", async () => {
-    // Implementation pending
+describe("Tool Registry", () => {
+  it("should export tool definitions", () => {
+    const { TOOL_REGISTRY, getAllToolDefinitions, getToolDefinition } = require("../src/tools");
+    
+    expect(TOOL_REGISTRY).toBeDefined();
+    expect(getAllToolDefinitions).toBeDefined();
+    expect(getToolDefinition).toBeDefined();
+    
+    const allTools = getAllToolDefinitions();
+    expect(allTools.length).toBeGreaterThan(0);
+    
+    const storeTool = getToolDefinition("memory_store");
+    expect(storeTool).toBeDefined();
+    expect(storeTool.name).toBe("memory_store");
   });
 });

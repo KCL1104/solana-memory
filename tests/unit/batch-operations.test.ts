@@ -184,7 +184,7 @@ describe('Batch Operations', () => {
         metadata: {
           memoryType: 'knowledge' as const,
           importance: 50 + (i % 50),
-          tags: [i % 10]
+          tags: [`tag-${i % 10}`]
         },
         vault: 'vault-123'
       }));

@@ -53,7 +53,7 @@ describe('ChaCha20-Poly1305 Encryption', () => {
         metadata: {
           memoryType: 'knowledge',
           importance: 80,
-          tags: [1, 2, 3]
+          tags: ['encryption', 'test', 'sample']
         },
         vault: 'vault-123'
       });
@@ -214,7 +214,7 @@ describe('ChaCha20-Poly1305 Encryption', () => {
       const signedMemory = identityBinding.signMemory(identity.id, {
         key: 'memory-key',
         content: 'Test content',
-        metadata: { memoryType: 'knowledge', importance: 80, tags: [1, 2] },
+        metadata: { memoryType: 'knowledge', importance: 80, tags: ['tag1', 'tag2'] },
         vault: 'vault-123'
       });
       

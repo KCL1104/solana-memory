@@ -89,7 +89,7 @@ export interface MemoryMetadata {
   /** Importance score (0-100) */
   importance: number;
   /** Tags array */
-  tags: number[];
+  tags: string[];
   /** Optional IPFS CID for large content */
   ipfsCid?: string;
 }

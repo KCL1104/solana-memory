@@ -274,6 +274,7 @@ export interface MemoryQuery {
   voter?: string;
   proposal?: string;
   delegate?: string;
+  proposer?: string;
   state?: ProposalState;
   category?: ProposalCategory;
   startTime?: number;

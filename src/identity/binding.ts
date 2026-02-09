@@ -88,8 +88,8 @@ export interface MemoryMetadata {
   memoryType: MemoryType;
   /** Importance score (0-100) */
   importance: number;
-  /** Tags array */
-  tags: string[];
+  /** Tags array (8-byte array matching on-chain [u8; 8]) */
+  tags: number[];
   /** Optional IPFS CID for large content */
   ipfsCid?: string;
 }

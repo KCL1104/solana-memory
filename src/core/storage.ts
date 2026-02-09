@@ -123,6 +123,9 @@ export class MemoryStorage {
     if (query.realm) {
       proposals = proposals.filter(p => p.realm === query.realm);
     }
+    if (query.proposer) {
+      proposals = proposals.filter(p => p.proposer === query.proposer);
+    }
     if (query.state) {
       proposals = proposals.filter(p => p.state === query.state);
     }

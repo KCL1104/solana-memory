@@ -106,7 +106,7 @@ describe('E2E: DAO Governance Scenario', () => {
         metadata: {
           memoryType: 'task',
           importance: 90,
-          tags: [1, 2, 3]
+          tags: [1, 2, 3, 0, 0, 0, 0, 0]
         },
         vault: 'dao-vault'
       });

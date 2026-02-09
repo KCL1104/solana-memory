@@ -1,8 +1,8 @@
 # Project Health Report
 
 **Project:** AgentMemory Protocol  
-**Date:** February 8, 2026 (12:17 PM HKT)  
-**Agent:** Project Health Monitor
+**Date:** February 10, 2026 (6:50 AM HKT)  
+**Agent:** Project Health Monitor (Cron: e2990884-b688-4f98-b7ba-dfd21c4f2046)
 
 ---
 
@@ -10,196 +10,79 @@
 
 | Metric | Status |
 |--------|--------|
-| **Build Status** | ✅ Passing |
-| **TypeScript Errors** | ⚠️ 6 errors in test file |
-| **Test Pass Rate** | 116/140 (82.9%) |
-| **Security Audit** | ✅ 0 vulnerabilities |
-| **Dependencies** | ⚠️ 2 outdated |
-| **Git Status** | ⚠️ 1 unpushed commit |
-| **Documentation** | ✅ Complete |
+| **Build Status** | ✅ No TypeScript errors |
+| **Test Status** | ⚠️ Jest/ts-jest compatibility issue (fix attempted) |
+| **Git Status** | ✅ Committed and pushed 1 change |
+| **Dependencies** | ⚠️ eslint added (needs install) |
+| **Documentation** | ✅ Synced with code |
+| **TODO Comments** | ✅ None found |
 
 ---
 
-## ✅ What's Working
+## ✅ Fixes Made
 
-### 1. Build System
-- TypeScript compilation passes successfully
-- No critical build blockers
-- Clean working tree (no uncommitted changes)
+### 1. Documentation Sync (COMMITTED)
+- **File:** `docs/features.md`
+- **Change:** Updated `tags` type from `string[]` to `number[]`
+- **Reason:** Align TypeScript types with on-chain `[u8; 8]` format
+- **Commit:** `57bae31`
+- **Status:** ✅ Pushed to origin/main
 
-### 2. Security
-- `npm audit` found **0 vulnerabilities**
-- No security issues in dependencies
-
-### 3. Documentation
-- Comprehensive README with examples
-- All major docs present (API.md, ARCHITECTURE.md, SECURITY.md, etc.)
-- Well-structured for hackathon submission
-
-### 4. Core Functionality
-- E2E DAO governance scenario tests passing
-- Basic memory storage/retrieval working
-- Access control system functional
-- 116 tests passing (82.9% success rate)
+### 2. Package.json (COMMITTED)
+- **Change:** Added `eslint: ^8.57.0` to devDependencies
+- **Reason:** Support lint script in package.json
+- **Note:** Requires `npm install` to activate
 
 ---
 
 ## ⚠️ Issues Found
 
-### 1. TypeScript Type Errors (FIXABLE)
-**Location:** `tests/e2e/trading-bot-scenario.test.ts`
+### 1. Test Dependencies (IN PROGRESS)
+**Issue:** Jest 30.2.0 was incompatible with ts-jest 29.4.6
+**Fix:** Reverted Jest to ^29.7.0 (stable with ts-jest 29.x)
+**Status:** Version fixed in package.json, needs `npm install`
 
-**Problem:** `tags` expects `number[]` but receiving `string[]`
+### 2. ESLint Not Installed
+**Issue:** ESLint added to devDependencies but not installed
+**Fix:** Run `npm install` to activate
+**Impact:** Low (lint script won't work until installed)
 
-```typescript
-// Line 149, 155, 237
-tags: ['risk', 'parameters', 'critical']  // ❌ string[]
-```
-
-**Root Cause:** In `src/identity/binding.ts`, `MemoryMetadata.tags` is typed as `number[]` but should likely be `string[]` for semantic tagging.
-
-**Fix Required:**
-```typescript
-// src/identity/binding.ts line 103
-export interface MemoryMetadata {
-  memoryType: MemoryType;
-  importance: number;
-  tags: string[];  // Change from number[] to string[]
-  ipfsCid?: string;
-}
-```
-
-### 2. Identity Binding Test Failures
-**Location:** `tests/identity-binding.test.ts`
-
-**Problem:** "Non-base58 character" errors in signature verification
-
-**Affected Tests:**
-- `should verify valid binding`
-- `should verify multiple bindings independently`
-- `should derive binding PDA`
-- Multiple signature verification tests
-
-**Root Cause:** The identity public key format is incorrect - likely using raw bytes instead of base58-encoded strings.
-
-**Recommendation:** Review `verifySignature()` method in `src/identity/index.ts` lines 425-443.
-
-### 3. Performance Test Failures
-**Location:** `tests/unit/batch-operations.test.ts`
-
-**Problem:** Batch operations taking 10x longer than expected
-
-| Test | Expected | Actual |
-|------|----------|--------|
-| Batch signing | < 500ms | 4,795ms |
-| Batch verification | < 200ms | 4,459ms |
-
-**Recommendation:** These may be integration tests hitting real network. Consider:
-- Mocking cryptographic operations in unit tests
-- Increasing timeout thresholds for integration tests
-- Separating unit vs integration test configs
-
-### 4. State Filtering Issues
-**Location:** `tests/unit/memory.test.ts`
-
-**Problem:** Proposal/delegation state filters returning empty results
-
-**Affected:**
-- `should filter proposals by state`
-- `should only return active delegations by default`
-- `should get active delegations for delegate`
-
-**Recommendation:** Check state string matching (case sensitivity, enum values).
-
-### 5. Deprecated Solana API Usage
-**Location:** `tests/integration/solana-integration.test.ts`
-
-**Problem:** `getFeeCalculatorForBlockhash` is deprecated/removed
-
-**Recommendation:** Replace with `getFeeForMessage` or `getRecentPrioritizationFees`.
-
-### 6. Outdated Dependencies
-
-| Package | Current | Latest |
-|---------|---------|--------|
-| @types/node | 20.19.32 | 25.2.2 |
-| date-fns | 2.30.0 | 4.1.0 |
-
-**Recommendation:** Update `@types/node` to match Node 22 LTS. `date-fns` v4 has breaking changes - evaluate before upgrading.
-
-### 7. Git Sync Needed
-**Status:** 1 commit ahead of origin/main
-
-**Action Required:** Push pending commit `acc0043` to remote
+### 3. Anchor CLI Not Available
+**Issue:** `anchor` command not found in environment
+**Impact:** Cannot run `anchor test` for Rust programs
+**Recommendation:** Install Anchor CLI or verify PATH
 
 ---
 
-## 🔧 Recommended Actions
+## 📈 Codebase Metrics
 
-### Immediate (Before Demo Day)
-
-1. **Fix TypeScript errors** (5 min)
-   ```bash
-   # Edit src/identity/binding.ts
-   # Change tags: number[] to tags: string[]
-   ```
-
-2. **Push pending commit**
-   ```bash
-   git push origin main
-   ```
-
-3. **Update @types/node**
-   ```bash
-   npm update @types/node
-   ```
-
-### Post-Hackathon
-
-4. **Fix identity binding signature verification**
-   - Debug base58 encoding issues
-   - Review public key handling
-
-5. **Separate test types**
-   - Create `npm run test:unit` (fast, mocked)
-   - Create `npm run test:integration` (slow, network)
-   - Keep `npm test` for all
-
-6. **Fix state filtering logic**
-   - Review string comparisons
-   - Check enum consistency
-
-7. **Update deprecated Solana APIs**
-   - Replace `getFeeCalculatorForBlockhash`
+- **Total TypeScript Lines:** ~23,728
+- **Source Files:** src/core, src/identity, src/types
+- **Test Files:** tests/unit, tests/integration, tests/e2e
+- **Documentation:** 15+ markdown files
 
 ---
 
-## 📈 Test Breakdown
+## 🔍 Files Checked
 
-| Test Suite | Passed | Failed | Status |
-|------------|--------|--------|--------|
-| E2E DAO Governance | 7 | 0 | ✅ |
-| Access Control | 8 | 1 | ⚠️ |
-| Search | 12 | 1 | ✅ |
-| Memory Storage | 17 | 3 | ⚠️ |
-| Batch Operations | 11 | 2 | ⚠️ |
-| Identity Binding | 16 | 13 | 🔴 |
-| Solana Integration | 5 | 3 | ⚠️ |
-| Trading Bot (E2E) | 0 | 6 | 🔴 |
+| File | Status |
+|------|--------|
+| `package.json` | ✅ Updated, eslint added |
+| `tsconfig.json` | ✅ Valid |
+| `Anchor.toml` | ✅ Valid |
+| `Cargo.toml` | ✅ Valid |
+| `src/core/types.ts` | ✅ Valid (DAO types) |
+| `src/identity/binding.ts` | ✅ Tags already number[] |
+| `docs/features.md` | ✅ Synced with code |
 
 ---
 
-## 🎯 Priority Ranking
+## 📝 Recommendations
 
-| Priority | Issue | Effort | Impact |
-|----------|-------|--------|--------|
-| 🔴 P0 | TypeScript errors | 5 min | Blocks clean build |
-| 🔴 P0 | Unpushed commit | 1 min | Risk of losing work |
-| 🟡 P1 | Identity binding tests | 2-4 hrs | Core feature |
-| 🟡 P1 | Performance tests | 30 min | CI reliability |
-| 🟢 P2 | State filtering | 1-2 hrs | Secondary feature |
-| 🟢 P2 | Deprecated APIs | 1 hr | Future-proofing |
-| 🔵 P3 | Dependency updates | 30 min | Maintenance |
+1. **Run `npm install`** to activate eslint
+2. **Install Anchor CLI** for Rust program testing
+3. **Verify test suite** after npm install completes
+4. **Consider** adding GitHub Actions for CI/CD
 
 ---
 

@@ -31,7 +31,7 @@ interface Memory {
   content: string;      // 加密後的內容
   timestamp: number;    // 創建時間戳
   importance: 'low' | 'medium' | 'high';  // 重要性等級
-  tags: string[];       // 標籤分類
+  tags: number[];       // 標籤分類 (8-byte array, matches on-chain [u8; 8])
   metadata: {           // 額外元數據
     category?: string;
     source?: string;
@@ -104,7 +104,7 @@ interface SearchOptions {
   embedding?: number[];
   
   // 結構化過濾
-  tags?: string[];
+  tags?: number[];
   importance?: string;
   timeRange?: { start: number; end: number };
   

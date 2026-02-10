@@ -1617,56 +1617,146 @@ function deriveMemoryPda(vault: PublicKey, key: string, programId: PublicKey): P
 
 ## SDK Reference
 
-### TypeScript SDK Methods
+### TypeScript SDK Installation
 
-The official TypeScript SDK provides high-level methods:
+```bash
+npm install @agent-memory/sdk @solana/web3.js
+```
+
+### Basic Setup
 
 ```typescript
-class AgentMemoryClient {
-  // Initialization
-  constructor(connection: Connection, wallet: Wallet);
-  initializeVault(agentKey: PublicKey, encryptionPubkey?: Uint8Array): Promise<PublicKey>;
-  
-  // Memory operations
-  storeMemory(vault: PublicKey, params: StoreMemoryParams): Promise<string>;
-  getMemory(vault: PublicKey, key: string): Promise<MemoryShard | null>;
-  getMemories(vault: PublicKey, filter?: MemoryFilter): Promise<MemoryShard[]>;
-  updateMemory(vault: PublicKey, key: string, params: UpdateParams): Promise<string>;
-  deleteMemory(vault: PublicKey, key: string): Promise<string>;
-  permanentDeleteMemory(vault: PublicKey, key: string): Promise<string>;
-  rollbackMemory(vault: PublicKey, key: string, version: number): Promise<string>;
-  
-  // Batch operations
-  batchStoreMemories(vault: PublicKey, memories: MemoryInput[]): Promise<string>;
-  batchDeleteMemories(vault: PublicKey, keys: string[]): Promise<string>;
-  batchUpdateTags(vault: PublicKey, updates: TagUpdate[]): Promise<string>;
-  
-  // Access control
-  grantAccess(vault: PublicKey, grantee: PublicKey, params: GrantParams): Promise<string>;
-  revokeAccess(vault: PublicKey, grantee: PublicKey): Promise<string>;
-  checkAccess(vault: PublicKey, grantee: PublicKey): Promise<AccessLevel>;
-  
-  // Groups
-  createSharingGroup(vault: PublicKey, name: string, description: string): Promise<PublicKey>;
-  addGroupMember(group: PublicKey, member: PublicKey, level: PermissionLevel): Promise<string>;
-  removeGroupMember(group: PublicKey, member: PublicKey): Promise<string>;
-  
-  // Economic
-  stakeForStorage(vault: PublicKey, amount: BN): Promise<string>;
-  unstakeTokens(vault: PublicKey, amount: BN): Promise<string>;
-  claimRewards(vault: PublicKey): Promise<string>;
-  
-  // Profile
-  updateProfile(profile: PublicKey, params: ProfileParams): Promise<string>;
-  recordTaskCompletion(profile: PublicKey): Promise<string>;
+import { AgentMemoryClient, AGENT_MEMORY_PROGRAM_ID } from '@agent-memory/sdk';
+import { Connection } from '@solana/web3.js';
+
+const connection = new Connection('https://api.devnet.solana.com');
+const client = new AgentMemoryClient(connection, AGENT_MEMORY_PROGRAM_ID);
+```
+
+### SDK Methods
+
+#### Constructor
+```typescript
+constructor(
+  connection: Connection,
+  programId?: PublicKey,
+  commitment?: Commitment,
+  retryConfig?: Partial<RetryConfig>
+)
+```
+
+#### PDA Derivation (No transaction required)
+```typescript
+// Derive vault PDA
+findVaultPda(owner: PublicKey, agentKey: PublicKey): [PublicKey, number]
+
+// Derive profile PDA  
+findProfilePda(agentKey: PublicKey): [PublicKey, number]
+
+// Derive memory PDA
+findMemoryPda(vault: PublicKey, key: string): [PublicKey, number]
+```
+
+#### Vault Operations
+```typescript
+// Initialize a new vault
+initializeVault(
+  owner: PublicKey,
+  agentKey: PublicKey,
+  encryptionPubkey: Uint8Array,
+  payer: PublicKey
+): Promise<TransactionResult>
+```
+
+#### Memory Operations
+```typescript
+// Create a new memory shard
+createMemory(
+  vault: PublicKey,
+  key: string,
+  contentHash: Uint8Array,
+  contentSize: number,
+  metadata: MemoryMetadata,
+  owner: PublicKey,
+  isEncrypted?: boolean
+): Promise<TransactionResult>
+
+// Parse on-chain memory data
+getMemory(vault: PublicKey, key: string): Promise<MemoryShard | null>
+
+// Parse on-chain vault data
+getVault(vaultPda: PublicKey): Promise<MemoryVault | null>
+
+// Parse on-chain profile data
+getProfile(profilePda: PublicKey): Promise<AgentProfile | null>
+```
+
+#### Transaction Utilities
+```typescript
+// Get transaction status callback
+onTransactionStatus(signature: string, callback: (status: string) => void): void
+```
+
+### Types
+
+```typescript
+interface MemoryMetadata {
+  memoryType: 'conversation' | 'learning' | 'preference' | 'task' | 'relationship' | 'knowledge' | 'system';
+  importance: number; // 0-100
+  tags: string[];
+  ipfsCid?: string;
 }
+
+interface MemoryShard {
+  vault: PublicKey;
+  key: string;
+  contentHash: Uint8Array;
+  contentSize: number;
+  metadata: MemoryMetadata;
+  createdAt: bigint;
+  updatedAt: bigint;
+  version: number;
+  isDeleted: boolean;
+  isEncrypted: boolean;
+  versionHistory: VersionRecord[];
+}
+
+interface TransactionResult {
+  signature: string;
+  success: boolean;
+  error?: string;
+  confirmationStatus?: string;
+}
+```
+
+### Utility Functions
+
+```typescript
+import { 
+  generateEncryptionKey,
+  hashContent,
+  formatPublicKey,
+  calculateStorageCost 
+} from '@agent-memory/sdk';
+
+// Generate random encryption key
+const key = generateEncryptionKey(); // Uint8Array(32)
+
+// Hash content for on-chain storage
+const hash = await hashContent('content'); // Uint8Array(32)
+
+// Format public key for display
+formatPublicKey(publicKey); // "ABC123...XYZ"
+
+// Calculate storage cost
+calculateStorageCost(bytes); // SOL amount
 ```
 
 ---
 
 **Dependencies:**
 ```bash
-npm install @coral-xyz/anchor @solana/web3.js @solana/spl-token bn.js
+npm install @agent-memory/sdk @solana/web3.js @coral-xyz/anchor
 ```
 
-**Note:** All examples use Anchor Framework TypeScript SDK. Ensure you have the correct version (0.30.1) installed.
+**Note:** The SDK is client-side only and does not include encryption. Implement your own encryption before storing sensitive data.

@@ -50,25 +50,32 @@ anchor deploy --provider.cluster devnet
 **Try it out:**
 
 ```typescript
-import { AgentMemoryClient } from './src/client';
+import { AgentMemoryClient } from '@agent-memory/sdk';
+import { Connection } from '@solana/web3.js';
 
 // Initialize client
-const client = new AgentMemoryClient(connection, wallet);
+const connection = new Connection('https://api.devnet.solana.com');
+const client = new AgentMemoryClient(connection);
 
 // Initialize vault for agent-human pair
-const vault = await client.initializeVault(agentPublicKey);
+const { vaultPda } = client.findVaultPda(ownerPublicKey, agentPublicKey);
+
+// Initialize vault (requires wallet signature)
+await client.initializeVault(ownerPublicKey, agentPublicKey, encryptionKey, payerPublicKey);
 
 // Store encrypted memory
-await client.storeMemory(vault, {
-  content: encryptedData,
-  category: 'preferences',
-  tags: ['user', 'settings']
-});
+const contentHash = await hashContent(encryptedData);
+await client.createMemory(
+  vaultPda,
+  'memory-key',
+  contentHash,
+  encryptedData.length,
+  { memoryType: 'preference', importance: 80, tags: ['user', 'settings'] },
+  ownerPublicKey
+);
 
 // Retrieve memories
-const memories = await client.getMemories(vault, {
-  category: 'preferences'
-});
+const memory = await client.getMemory(vaultPda, 'memory-key');
 ```
 
 📖 **[Complete 5-Minute Guide](./docs/GETTING-STARTED.md)**
@@ -145,54 +152,70 @@ npm install && npm run dev
 ### Basic Example
 
 ```typescript
-import { AgentMemoryClient } from './src/client';
+import { AgentMemoryClient } from '@agent-memory/sdk';
 import { Connection, PublicKey } from '@solana/web3.js';
 
 // Setup connection
 const connection = new Connection('https://api.devnet.solana.com');
-const wallet = /* your wallet */;
 
 // Initialize client
-const client = new AgentMemoryClient(connection, wallet);
+const client = new AgentMemoryClient(connection);
 
-// Initialize vault
-const vault = await client.initializeVault(agentPublicKey);
-console.log('Vault created:', vault.toBase58());
+// Find vault PDA (doesn't require transaction)
+const [vaultPda, vaultBump] = client.findVaultPda(ownerPublicKey, agentPublicKey);
+console.log('Vault PDA:', vaultPda.toBase58());
+
+// Initialize vault (requires wallet signature)
+const result = await client.initializeVault(
+  ownerPublicKey,
+  agentPublicKey,
+  encryptionPublicKey,
+  payerPublicKey
+);
+console.log('Vault created:', result.signature);
 ```
 
 ### Store Memory
 
 ```typescript
-import { encryptContent } from './src/encryption';
+import { hashContent } from '@agent-memory/sdk';
 
-// Encrypt content client-side
+// Encrypt content client-side (using your preferred encryption)
 const content = JSON.stringify({ theme: 'dark', language: 'en' });
-const encryptedData = await encryptContent(content, encryptionKey);
+const encryptedData = encryptContent(content, encryptionKey);
+
+// Hash the encrypted content
+const contentHash = await hashContent(encryptedData);
 
 // Store on-chain
-await client.storeMemory(vault, {
-  content: encryptedData,
-  category: 'preferences',
-  tags: ['user', 'settings'],
-  importance: 80
-});
+const result = await client.createMemory(
+  vaultPda,
+  'user-preferences',
+  contentHash,
+  encryptedData.length,
+  { 
+    memoryType: 'preference', 
+    importance: 80,
+    tags: ['user', 'settings']
+  },
+  ownerPublicKey
+);
+console.log('Memory stored:', result.signature);
 ```
 
 ### Retrieve Memories
 
 ```typescript
-// Get all memories
-const allMemories = await client.getMemories(vault);
+// Get a specific memory
+const memory = await client.getMemory(vaultPda, 'user-preferences');
+console.log('Memory:', memory);
 
-// Filter by category
-const preferences = await client.getMemories(vault, {
-  category: 'preferences'
-});
-
-// Filter by tags
-const tagged = await client.getMemories(vault, {
-  tags: ['important']
-});
+// Memory includes:
+// - contentHash: Verify against your stored data
+// - contentSize: Size of encrypted content
+// - metadata: { memoryType, importance, tags }
+// - version: Version number for this memory
+// - versionHistory: Array of all versions
 ```
 
 ### Batch Operations

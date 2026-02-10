@@ -85,7 +85,16 @@ seeds = [b"identity_registry", identity_pubkey]
 
 ### 2. SDK (TypeScript)
 
-**File**: `src/identity/index.ts`
+**Import from SDK:**
+
+```typescript
+import { 
+  IdentityMemoryBinding,
+  createBindingSignature,
+  verifyBindingSignature,
+  deriveBindingPDA
+} from '@agent-memory/sdk';
+```
 
 #### IdentityMemoryBinding Class
 
@@ -163,7 +172,7 @@ export function deriveBindingPDA(
 ```typescript
 import { AgentMemory } from 'agentmemory';
 import { SAIDClient } from '@said-protocol/client';
-import { IdentityMemoryBinding } from '../src/identity';
+import { IdentityMemoryBinding } from '@agent-memory/sdk';
 
 // Initialize
 const saidClient = new SAIDClient({ network: 'devnet' });

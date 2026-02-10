@@ -1,86 +1,70 @@
-// Global test setup
-import { MemoryStorage } from '../src/core/storage';
-import { IdentityBinding } from '../src/identity/binding';
-import { Connection, clusterApiUrl } from '@solana/web3.js';
+/**
+ * AgentMemory Protocol - Test Setup
+ * Global test configuration and utilities
+ */
 
-// Devnet configuration for tests
+import { Connection, clusterApiUrl, Keypair } from '@solana/web3.js';
+import { AgentMemoryClient } from '../src';
+
+// Test configuration
 export const TEST_CONFIG = {
   network: 'devnet' as const,
+  rpcUrl: process.env.SOLANA_RPC_URL || clusterApiUrl('devnet'),
   agentId: 'test-agent-' + Date.now(),
-  rpcUrl: process.env.SOLANA_RPC_URL || clusterApiUrl('devnet')
 };
 
-// Test utilities
-export async function cleanupTestData(storage: MemoryStorage) {
-  storage.clear();
-}
-
-export function createTestStorage(): MemoryStorage {
-  return new MemoryStorage();
-}
-
-export function createTestIdentityBinding(): IdentityBinding {
+// Create test client
+export function createTestClient(): AgentMemoryClient {
   const connection = new Connection(TEST_CONFIG.rpcUrl);
-  return new IdentityBinding(connection, {
-    requireSignatures: true,
-    signatureExpiryHours: 0,
-    enableCrossSession: true,
-    trustThreshold: 3
-  });
+  return new AgentMemoryClient(connection);
+}
+
+// Generate test keypairs
+export function generateTestKeypairs() {
+  return {
+    owner: Keypair.generate(),
+    agentKey: Keypair.generate(),
+    payer: Keypair.generate(),
+  };
 }
 
 // Mock data generators
-export function generateMockVote(overrides: Partial<any> = {}) {
-  return {
-    id: `vote-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-    proposalId: `proposal-${Math.random().toString(36).substr(2, 9)}`,
-    voter: `voter-${Math.random().toString(36).substr(2, 9)}`,
-    choice: 'yes' as const,
-    votingPower: 100,
+export function generateMockMemoryKey(): string {
+  return `memory-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+}
+
+export function generateMockContent(): string {
+  return JSON.stringify({
+    message: 'Test memory content',
     timestamp: Date.now(),
-    ...overrides
+    metadata: { source: 'test' },
+  });
+}
+
+export function generateMockMetadata() {
+  return {
+    memoryType: 'conversation' as const,
+    importance: 50,
+    tags: ['test', 'mock'],
   };
 }
 
-export function generateMockProposal(overrides: Partial<any> = {}) {
-  return {
-    id: `proposal-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-    title: 'Test Proposal',
-    description: 'Test proposal description',
-    category: 'treasury' as const,
-    state: 'voting' as const,
-    proposer: `proposer-${Math.random().toString(36).substr(2, 9)}`,
-    realm: `realm-${Math.random().toString(36).substr(2, 9)}`,
-    daoName: 'Test DAO',
-    createdAt: Date.now(),
-    votingStartsAt: Date.now(),
-    votingEndsAt: Date.now() + 86400000,
-    votesYes: 100,
-    votesNo: 50,
-    votesAbstain: 10,
-    totalVotingPower: 160,
-    quorum: 100,
-    threshold: 50,
-    ...overrides
-  };
-}
-
-export function generateMockDelegation(overrides: Partial<any> = {}) {
-  return {
-    id: `delegation-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-    delegator: `delegator-${Math.random().toString(36).substr(2, 9)}`,
-    delegate: `delegate-${Math.random().toString(36).substr(2, 9)}`,
-    realm: `realm-${Math.random().toString(36).substr(2, 9)}`,
-    votingPower: 100,
-    delegatedAt: Date.now(),
-    active: true,
-    ...overrides
-  };
+// Test utilities
+export async function airdropSol(
+  connection: Connection,
+  pubkey: typeof Keypair.prototype.publicKey,
+  amount: number = 1
+): Promise<string> {
+  const signature = await connection.requestAirdrop(
+    pubkey,
+    amount * 1e9 // Convert SOL to lamports
+  );
+  await connection.confirmTransaction(signature);
+  return signature;
 }
 
 // Global beforeAll
 beforeAll(async () => {
-  // Check devnet connection
   if (process.env.CI !== 'true') {
     try {
       const connection = new Connection(TEST_CONFIG.rpcUrl);
@@ -96,12 +80,3 @@ beforeAll(async () => {
 afterAll(async () => {
   // Global cleanup if needed
 });
-
-// Extend jest matchers if needed
-declare global {
-  namespace jest {
-    interface Matchers<R> {
-      toBeValidMemory(): R;
-    }
-  }
-}

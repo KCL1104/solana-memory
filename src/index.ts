@@ -19,6 +19,9 @@
 // Core client
 export { AgentMemoryClient, AGENT_MEMORY_PROGRAM_ID } from './client';
 
+// Identity binding (ERC-8004)
+export * from './identity';
+
 // Types
 export type {
   MemoryType,

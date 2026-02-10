@@ -41,3 +41,11 @@ Thumbs.db
 # Build outputs
 dist/
 build/
+
+# App-specific build artifacts
+app/.next/
+app/dist/
+app/*.tsbuildinfo
+
+# Backup directories
+backup-pre-reorg/

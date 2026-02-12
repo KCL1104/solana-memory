@@ -10,9 +10,19 @@ Give AI agents persistent memory that survives session restarts, built on Solana
 
 ---
 
+## 🌐 Live Demo
+
+**Try AgentMemory now:** https://skill-deploy-7mvdm3nvh0-agent-skill-vercel.vercel.app
+
+- 📖 **[User Guide](./docs/USER-GUIDE.md)** — Web interface instructions
+- 🤖 **[Agent Skill](./skills/agentmemory-client/SKILL.md)** — For AI agents
+
+---
+
 ## 📑 Table of Contents
 
 - [Quick Start](#-quick-start)
+- [Live Demo](#-live-demo)
 - [Key Features](#-key-features)
 - [Installation](#-installation)
 - [Usage](#-usage)

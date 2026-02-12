@@ -49,3 +49,21 @@ app/*.tsbuildinfo
 
 # Backup directories
 backup-pre-reorg/
+
+# OpenClaw workspace configuration (not part of project)
+AGENTS.md
+BOOTSTRAP.md
+HEARTBEAT.md
+IDENTITY.md
+SOUL.md
+TOOLS.md
+USER.md
+
+# Local workspace directories (not part of core project)
+agent-memory/
+agent-memory-sdk/
+solana-pda-explorer/
+
+# Daily memory logs
+memory/
+reports/

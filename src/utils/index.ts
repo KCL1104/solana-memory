@@ -13,7 +13,7 @@ export function generateEncryptionKey(): Uint8Array {
     return crypto.getRandomValues(new Uint8Array(32));
   }
   // Fallback for Node.js environment
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { randomBytes } = require('crypto');
   return new Uint8Array(randomBytes(32));
 }

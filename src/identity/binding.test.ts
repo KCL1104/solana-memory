@@ -3,8 +3,8 @@
  * Comprehensive test suite for the Identity Binding module
  */
 
-import { describe, it, expect, beforeEach, beforeAll } from '@jest/globals';
-import { Connection, clusterApiUrl, PublicKey } from '@solana/web3.js';
+import { describe, it, expect, beforeEach } from '@jest/globals';
+import { Connection, clusterApiUrl } from '@solana/web3.js';
 import { 
   IdentityBinding, 
   AgentIdentity, 

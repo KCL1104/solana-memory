@@ -41,16 +41,8 @@ export type {
 // ERC-8004 IDENTITY-MEMORY BINDING
 // ============================================================================
 
-import { 
-  Connection, 
-  PublicKey,
-  Transaction,
-  SystemProgram,
-  SYSVAR_CLOCK_PUBKEY,
-  sendAndConfirmTransaction
-} from '@solana/web3.js';
+import { Connection, PublicKey } from '@solana/web3.js';
 import * as nacl from 'tweetnacl';
-import { createHash, randomBytes } from 'crypto';
 
 // ============================================================================
 // TYPES
@@ -537,7 +529,7 @@ export function verifyBindingSignature(
     const pubkeyBytes = new PublicKey(identityPubkey).toBytes();
     
     return nacl.sign.detached.verify(messageBytes, signature, pubkeyBytes);
-  } catch (error) {
+  } catch {
     return false;
   }
 }

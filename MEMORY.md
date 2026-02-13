@@ -6,7 +6,7 @@ tags: [core, identity, persistent]
 created: 2026-02-12
 modified: 2026-02-13
 tier: hot
-access_count: 0
+access_count: 2
 ---
 
 # MEMORY.md - Long-Term Memory
@@ -129,6 +129,7 @@ tier: hot|warm|cold
 - [x] Set up self-improvement cron tracking
 
 ### Completed (2026-02-13)
+- [x] Fifth self-improvement cron run — identified state file deletion pattern
 - [x] Third self-improvement cron run — all systems nominal
 - [x] **Deep research: AI Agent Memory Systems**
   - [x] Studied Mem0 architecture (YC-backed memory layer)
@@ -155,3 +156,5 @@ tier: hot|warm|cold
 - Self-improvement cron runs regularly — use it well
 - **Memory system v2:** Now with importance scoring and tier management!
 - Research reference: See docs/memory-system-enhancement.md for full spec
+- **File Safety:** State files can be deleted — always verify existence before assuming
+- **Bootstrap Patience:** Users take 24-48h to initiate first conversation normally

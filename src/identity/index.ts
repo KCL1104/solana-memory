@@ -346,7 +346,7 @@ export class IdentityMemoryBinding {
     const bindings: Binding[] = [];
     
     // Search local cache
-    for (const [key, binding] of this.localBindings) {
+    for (const [, binding] of this.localBindings) {
       if (binding.identity_pubkey === identityPubkey) {
         bindings.push(binding);
       }
@@ -447,6 +447,7 @@ export class IdentityMemoryBinding {
   private async storeBindingOnChain(
     identityPubkey: string,
     agentId: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     signature: Uint8Array
   ): Promise<string> {
     // This would be implemented with actual Anchor program calls
@@ -469,7 +470,9 @@ export class IdentityMemoryBinding {
    * Get binding from blockchain
    */
   private async getBindingFromChain(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     identityPubkey: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     agentId: string
   ): Promise<Binding | null> {
     // This would query the on-chain program
@@ -480,7 +483,10 @@ export class IdentityMemoryBinding {
   /**
    * Get all bindings from blockchain for an identity
    */
-  private async getBindingsFromChain(identityPubkey: string): Promise<Binding[]> {
+  private async getBindingsFromChain(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    identityPubkey: string
+  ): Promise<Binding[]> {
     // This would query the on-chain program for the identity registry
     // For now, return empty array
     return [];

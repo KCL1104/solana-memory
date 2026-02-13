@@ -1,0 +1,36 @@
+{
+  "name": "agentmemory-api",
+  "version": "1.0.0",
+  "description": "REST API for AgentMemory Protocol - Persistent memory for AI agents on Solana",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "lint": "eslint src/"
+  },
+  "dependencies": {
+    "@coral-xyz/anchor": "^0.30.1",
+    "@solana/web3.js": "^1.87.6",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "helmet": "^7.1.0",
+    "tweetnacl": "^1.0.3"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.10.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.0"
+  },
+  "keywords": [
+    "solana",
+    "ai-agent",
+    "memory",
+    "blockchain",
+    "rest-api"
+  ],
+  "license": "MIT"
+}
